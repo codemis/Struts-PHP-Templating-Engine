@@ -1,0 +1,58 @@
+# Required Parameters
+global:
+    domain: 'http://test.local'
+    title: 'Default Title'
+    description: 'Default Description'
+    keywords: 'Default Keywords'
+    template: 'example.html'
+    javascript: ''
+    css: 'example.css'
+    compress_css: true # to use compression, all files must be in the root css directory,  the css setting will not take /
+    compress_js: true # to use compression, all files must be in the root js directory,  the js setting will not take /
+    css_compress_directory: /design/css/min #Directory where compression file lives
+    js_compress_directory: /design/js/min #Directory where compression file lives
+    enable_caching: false
+    changefreq: 'weekly'
+    priority: '1'
+    script_key: '62189a5b79edff2b2708ede2683fa911'
+'404':
+    title: '404 Error'
+    description: ''
+    keywords: ''
+    template: ''
+    javascript: ''
+    css:
+    landing_page: false
+    cache: true
+'sitemap':
+    title: ''
+    description: ''
+    keywords: ''
+    template: 'sitemap.xml'
+    javascript: ''
+    css:
+    landing_page: false
+    cache: false
+# /Required Parameters
+'example':
+    title: 'Page Title'
+    description: 'Page Description'
+    keywords: 'Page keywords'
+    template: ''
+    javascript: ''
+    css: ''
+    landing_page: false
+    cache: true
+    changefreq: 'daily'
+    priority: '2'
+'example-directory/example':
+    title: 'Page Title'
+    description: 'Page Description'
+    keywords: 'Page keywords'
+    template: ''
+    javascript: ''
+    css: ''
+    landing_page: false
+    cache: true
+    changefreq: 'daily'
+    priority: '2'

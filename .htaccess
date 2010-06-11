@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+	RewriteRule ^design/css/min/(.*)/(.*\.css) design/css/css.php?type=css&files=$2&cache=$1
+	RewriteRule ^design/js/min/(.*)/(.*\.js) design/js/js.php?type=js&files=$2&cache=$1
+    RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_URI} ^(.+)/$
+	RewriteRule ^(.+)/$  /$1 [R=301,L]
+	
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>
