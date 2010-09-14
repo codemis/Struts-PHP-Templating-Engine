@@ -31,7 +31,7 @@
 	
 	/**
 	 * Set all default variables and directories
-	 * @var string 	$layout_template 		the main layout file for all pages found in the layout directory
+	 * @var string 	$layout_template 		the main layout file for all pages found in the pages directory
 	 * @var int		$cache_time 			length of time to cache files for
 	 * @var string	$cache_directory		directory for the cahce files
 	 * @var	string	$pages_directory		directory for all the page code
@@ -98,7 +98,7 @@
 	 * @todo 	must verify if the global setting is really the bes approach
 	 */
 	$page_specific_settings = ((!empty($page_url)) && array_key_exists($page_url, $settings)) ? $settings[$page_url] : $settings['global'];
-	if($page_specific_settings['landing_page'] === true){
+	if(empty($page_url) || $page_specific_settings['landing_page'] === true){
 		$page_path = $page_path . '/index';
 		$pages_code_path = $pages_code_path . '/index';
 	}
