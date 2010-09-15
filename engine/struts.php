@@ -20,8 +20,6 @@ class strutsEngine
 	 * @var	array 	$pageVars		The array of variables for the page
 	 * @var	string	$strutContents	The content for the specific page
 	 * @var	string	$strutTemplate	The final layout that will be rendered
-	 * @var	string	$jsFormat		The HTML format for including javascript files in sprint_f() format
-	 * @var	string	$cssFormat		The HTML format for including CSS files in sprint_f() format
 	 * @access	private
 	 * 
 	 **/
@@ -29,8 +27,28 @@ class strutsEngine
 	private $pageVars = array();
 	private $strutContents = '';
 	private $strutTemplate = '';
-	private $jsFormat = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"%s\"></script>\r\n";
-	private $cssFormat = "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />\r\n";
+	/**
+	 * set the required variables for the Struts Engine
+	 *
+	 * @var	string	$documentRoot The document root for the site
+	 * @var	string	$jsFormat The HTML format for including javascript files in sprint_f() format
+	 * @var	string	$cssFormat The HTML format for including CSS files in sprint_f() format
+	 * @var	string	$compressedCssFileName The file name for the compressed css file
+	 * @access	public
+	 * 
+	 **/
+	public $documentRoot = '';
+	public $jsFormat = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"%s\"></script>\r\n";
+	public $cssFormat = "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />\r\n";
+	public $compressedCssFileName = 'styles.min.css';
+	
+	/**
+	 * Construct the class
+	 */
+	function __construct ()
+	{
+		$this->documentRoot = ((isset($_SERVER)) && (isset($_SERVER['DOCUMENT_ROOT']))) ? $_SERVER['DOCUMENT_ROOT'] : '';
+	}
 	
 	/**
 	 * Sets an individual variable for the layout file
@@ -121,27 +139,38 @@ class strutsEngine
 	 * @access	public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 **/
-	public function setLayoutCSSFromArray($css_files, $directory = null, $compress = null, $css_compress_dir = null, $cache_css = false)
+	public function setLayoutCSSFromArray($css_files, $css_compress_files = null, $directory = '/', $cache_css = false)
 	{
 		$page_css = '';
 		$files_to_compress = '';
 		if(!empty($css_files)){
 			foreach($css_files as $key => $val)
 			{
-				if($compress === true){
-					$files_to_compress .= $val . ',';
-				}else{
-					$page_css .= sprintf($this->cssFormat, $directory . '/' . $val);
-				}
-			}
-			if($compress === true){
-				$files_to_compress = substr($files_to_compress,0,-1);
-				$cache_css = ($cache_css === true)? 1 : 0;
-				$page_css = sprintf($this->cssFormat, $css_compress_dir . '/' . $cache_css . '/' . $files_to_compress);
+				$page_css .= sprintf($this->cssFormat, $directory . '/' . $val);
 			}
 		}else{
 			$page_css = '';
 		}
+		if(!empty($css_compress_files)){
+			$page_css .= sprintf($this->cssFormat, $directory . '/' . $this->compressedCssFileName);
+			$new_file_contents = '';
+			foreach($css_compress_files as $key => $val)
+			{
+				if(strstr($val, 'http://')){
+					if(file_exists($val)){
+						$new_file_contents .= file_get_contents($val);	
+					}
+				}else{
+					echo file_exists($directory . '/' . $val);
+					if(file_exists(realpath($this->documentRoot . '/') . $directory . '/' . $val)){
+						
+						$new_file_contents .= file_get_contents($this->cssFormat, realpath($this->documentRoot . '/') . $directory . '/' . $val);
+						echo file_get_contents($this->cssFormat, realpath($this->documentRoot . '/') . $directory . '/' . $val);
+					}
+				}
+			}
+		}
+		exit;
 		$this->setLayoutVar("strutCSS", $page_css);
 		return true;
 	}

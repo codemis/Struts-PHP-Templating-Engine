@@ -28,7 +28,7 @@
 	 * Set the strutsEngine object
 	 */
 	$newStrut = new strutsEngine();
-	
+	$newStrut->documentRoot = $_SERVER['DOCUMENT_ROOT'];
 	/**
 	 * Set all default variables and directories
 	 * @var string 	$layout_template 		the main layout file for all pages found in the pages directory
@@ -49,6 +49,7 @@
 	$cache_directory = 'tmp/';
 	$pages_directory = 'design/pages';
 	$pages_code_directory = 'code/pages';
+	$module_code_directory = 'code/modules';
 	$module_directory = 'design/modules';
 	$layout_directory = 'design/layouts';
 	$css_directory = '/design/css';
@@ -191,9 +192,35 @@
 	}
 	
 	/**
+	 * @var	string	$css_compress_files a string of all the global and page specific css files from the settings YAML that need to be compressed
+	 */
+	$css_compress_files = '';
+	
+	/**
+	 * This if block determines what settings have been supplied for the specific page and global css files to be compressed,  and populates the
+	 * $css_compress_files variable with a comma seperated string
+	 */
+	if((array_key_exists('css_to_compress', $page_specific_settings)) && (!empty($page_specific_settings['css_to_compress']))){
+		if((array_key_exists('css_to_compress', $settings['global'])) && (!empty($settings['global']['css_to_compress']))){
+			$css_compress_files = array_merge(explode(',', $settings['global']['css_to_compress']), explode(',', $page_specific_settings['css_to_compress']));
+		}else{
+			$css_compress_files = explode(',', $page_specific_settings['css_to_compress']);
+		}
+		
+		/**
+		 * IMPORTANT:: unset the $page_specific_settings['css_to_compress'] so it will not become a variable on the layout
+		 */
+		unset($page_specific_settings['css_to_compress']);
+	}else{
+		if((array_key_exists('css_to_compress', $settings['global'])) && (!empty($settings['global']['css_to_compress']))){
+			$css_compress_files = explode(',', $settings['global']['css_to_compress']);
+		}
+	}
+	
+	/**
 	 * Tell Struts to create the ##strutCSS## based on the $css_files and whether compression setting is set or not 
 	 */
-	$newStrut->setLayoutCSSFromArray($css_files, $css_directory, $settings['global']['compress_css'], $settings['global']['css_compress_directory'], $settings['global']['enable_caching']);
+	$newStrut->setLayoutCSSFromArray($css_files, $css_compress_files, $css_directory, $settings['global']['enable_caching']);
 	
 	/**
 	 * Check $page_specific_settings['template'], if it is set then $layout_template = $page_specific_settings['template']
@@ -242,7 +269,7 @@
 	 * Declare any modules to the Struts Templating Engine you need access to on the layout design page
 	 * Example:: this one creates a ##site_nav## that holds the site navigation in the variable
 	 */
-	$newStrut->setLayoutVar("example_nav", file_get_contents($module_directory . '/example_nav.html'));
+	require_once($module_code_directory . '/modules.inc.php');
 	
 	/**
 	 * Tell the Struts Templating Engine the layout file to use.

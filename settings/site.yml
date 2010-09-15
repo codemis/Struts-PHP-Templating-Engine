@@ -6,10 +6,9 @@ global:
     keywords: 'Default Keywords'
     template: 'example.html'
     javascript: ''
-    css: 'example.css'
-    compress_css: true # to use compression, all files must be in the root css directory,  the css setting will not take /
+    css: 'http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js'
+    css_to_compress: 'http://ajax.googleapis.com/ajax/libs/scriptaculous/1.8.3/scriptaculous.js,example.css'
     compress_js: true # to use compression, all files must be in the root js directory,  the js setting will not take /
-    css_compress_directory: /design/css/min #Directory where compression file lives
     js_compress_directory: /design/js/min #Directory where compression file lives
     enable_caching: false
     changefreq: 'weekly'
