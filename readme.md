@@ -47,7 +47,7 @@ Getting Started
 How do you configure it?
 ========================
 
-  To configure the STRUTS Engine settings, you can edit lines 49=64 in the main **index.php**.  If you want to configure the caching or compression, just edit the variables in **settings/site.yml**.
+  To configure the STRUTS Engine settings, you can edit lines 49-64 in the main **index.php**.  If you want to configure the caching or compression, just edit the variables in **settings/site.yml**.
   
 How it works!
 =============
@@ -57,7 +57,7 @@ How it works!
   1. The settings are pulled and parsed from the YAML file using the [PHP SPYC Class](http://code.google.com/p/spyc/) located in the engine directory.
   2. Once parsed,  the page and settings is determined by the url.  So if you visited http://localhost/example-directory/example.html, the engine will:
     * Set page settings from **'example-directory/example'** in the site.yml.
-    * Include the PHP file in code/pages/example-directory/example.php if it exists.
+    * Include the PHP file in code/pages/example-directory/example.php or code/pages/example-directory/example/index.php if the the page setting **landing_page** is TRUE.
     * Include the page content from the file in design/pages/example-directory/example.html, or design/pages/example-directory/example/index.html if the the page setting **landing_page** is TRUE.
   3. If there are no settings,  it will default to the global settings.
   4. If caching is enabled, and the page has been loaded before, then it will feed the user that page, else it will continue.
@@ -65,7 +65,7 @@ How it works!
   6. It includes the page specific PHP file if it exists.
   7. It reads the page specific HTML file.  Then it finds all ## variables in the html file, and replaces them with any set php variables, and page settings.  So if you have a setting for the page called **title**, then ##title## will be replaced with the setting value.
   8. If the file exists,  it includes the code/modules/modules.php file where you can define layout wide modules.
-  9. The layout file is set based on the **template** setting in site.yml, if it exists either in the global settings, or the page specific settings, or it defaults to the **$layout_template**
+  9. The layout file is set based on the **template** setting in site.yml, if it exists either in the global settings, or the page specific settings, or it defaults to the **$layout_template** in the index.php file
   10. Now the function `renderLayout()` is called, which again parses any ## variables and sets them with any variables set in the PHP or the site.yml.
   11. It prints out the result.
   
@@ -75,7 +75,7 @@ Template Tags
 Page Specific
 -------------
 
-  There are two ways to set layout specific tags.  The first is setting it in the settings/site.yaml file.  Under the specific page, just add the variable and its value.  For example,  to set a variable named my_title on the page at http://localhost/example-directory/example.html,  got to the site.yaml file and find or create a sett for the page that looks like this:
+  There are two ways to set layout specific tags.  The first is setting it in the settings/site.yml file.  Under the specific page, just add the variable and its value.  For example,  to set a variable named **my_title** on the page at **http://localhost/example-directory/example.html**,  got to the site.yml file and find or create a setting for the page that looks like this:
   
     'example-directory/example':
         title: 'Page Title'
@@ -95,7 +95,7 @@ Page Specific
   
   Now open the page specific HTML file at design/pages/example-directory/example.html or design/pages/example-directory/example/index.html if it is a landing page, and add your template tag ##my_title##.
   
-  Another way to set a page variable, and to do some PHP processing on the variabel is to create a page specific PHP file.  Using the same page as the previous example, create a PHP file at code/pages/example-directory/example.php or code/pages/example-directory/example/index.php if it is a landing page.  Open the file, and set the variable by using the following STRUTS method:
+  Another way to set a page variable, and to do some PHP processing on the variable is to create a page specific PHP file.  Using the same page as the previous example, create a PHP file at code/pages/example-directory/example.php or code/pages/example-directory/example/index.php if it is a landing page.  Open the file, and set the variable by using the following STRUTS method:
   
   `$newStrut->setPageVar('my_title', 'Another Example Page');`
 
@@ -106,11 +106,11 @@ Layout Specific
 
   All global settings in site.yml, and the page specific settings in site.yml are accessible in the layout with the ##variable## syntax.  To add custom variables for the layout,  you should set them up in the sites.yml file explained above in the Page Specific tagging.  Only modules should be setup in the PHP code.
   
-  There are also designated STRUTS' tag that are provided for the layout as well.  Here is the list of them:
+  There are also designated STRUTS' tags that are provided for the layout that can be helpful.  Here is the list of them:
 
-  * `##strutCSS##` - The CSS tags will be added dynamically.  If the CSS is being compressed,  the tag will only be linked to the compressed CSS file for the sitewide CSS and the page specific CSS file, otherwise all the CSS files will be added by the STRUTS Engine.  All CSS should be set in the settings/site.yml file.  You can set both global CSS files which will be included on all pages, or page specific CSS that will only be included on that page. Do not compress files with CSS files that are not located in the CSS directory.
-  * `##strutJavascript##` - The Javascript tags will be added dynamically.  If the Javascript is being compressed,  the tag will only be linked to the compressed Javascript file for the sitewide Javascript and the page specific Javascript file, otherwise all the Javascript files will be added by the STRUTS Engine.  All Javascript should be set in the settings/site.yml file.  You can set both global Javascript files which will be included on all pages, or page specific Javascript that will only be included on that page.  Do not compress files with Javascript files that are not located in the JS directory.
-  * `##strutContent##` - The page specific content.
+  * `##strutCSS##` - The CSS tags will be added dynamically.  If the CSS is being compressed,  the tag will only be linked to the compressed CSS files for the sitewide CSS and the page specific CSS file, otherwise all the CSS files will be added by the STRUTS Engine.  All CSS should be set in the settings/site.yml file.  You can set both global CSS files which will be included on all pages, or page specific CSS that will only be included on that page. Do not compress files not located in the CSS directory.
+  * `##strutJavascript##` - The Javascript tags will be added dynamically.  If the Javascript is being compressed,  the tag will only be linked to the compressed Javascript file for the sitewide Javascript and the page specific Javascript file, otherwise all the Javascript files will be added by the STRUTS Engine.  All Javascript should be set in the settings/site.yml file.  You can set both global Javascript files which will be included on all pages, or page specific Javascript that will only be included on that page.  Do not compress files that are not located in the JS directory.
+  * `##strutContent##` - The page specific content pulled from the page specific template file.
 
   
 Adding modules to the layout is a great way to share common HTML elements over several layouts.  To create a module, first save your HTML snippet in the design/modules directory.  Then open the code/modules/modules.inc.php file and add the following code with your specific information:
