@@ -14,30 +14,99 @@
 class strutsEngine
 {
 	/**
-	 * set the required variables for the Struts Engine
+	 * The array of variables for the layout
 	 *
-	 * @var	array 	$layoutVars 	The array of variables for the layout
-	 * @var	array 	$pageVars		The array of variables for the page
-	 * @var	string	$strutContents	The content for the specific page
-	 * @var	string	$strutTemplate	The final layout that will be rendered
-	 * @var	string	$jsFormat		The HTML format for including javascript files in sprint_f() format
-	 * @var	string	$cssFormat		The HTML format for including CSS files in sprint_f() format
-	 * @var string $siteUrl url for current site
-	 * @var string $siteWideFilename a file name for the compressed sitewide css
-	 * @var string $CSSDir path to css file
-	 * @var string $JSDir path to js file
-	 * 
-	 **/
+	 * @var Array
+	 * @access private
+	 */
 	private $layoutVars = array();
+	/**
+	 * The array of variables for the page
+	 *
+	 * @var Array
+	 * @access private
+	 */
 	private $pageVars = array();
+	/**
+	 * The content for the specific page
+	 *
+	 * @var string
+	 * @access private
+	 */
 	private $strutContents = '';
+	/**
+	 * The final layout that will be rendered
+	 *
+	 * @var string
+	 * @access private
+	 */
 	private $strutTemplate = '';
+	/**
+	 * The HTML format for including javascript files in sprint_f() format
+	 *
+	 * @var string
+	 */
 	public $jsFormat = "<script src=\"%s\"></script>\r\n";
+	/**
+	 * The HTML format for including CSS files in sprint_f() format
+	 *
+	 * @var string
+	 */
 	public $cssFormat = "<link rel=\"stylesheet\" href=\"%s\">\r\n";
+	/**
+	 * url for current site
+	 *
+	 * @var string
+	 */
 	public $siteUrl = '';
+	/**
+	 * a file name for the compressed sitewide css
+	 *
+	 * @var string
+	 */
 	public $siteWideFilename = 'sitewide';
+	/**
+	 * path to css file
+	 *
+	 * @var string
+	 */
 	public $CSSDir = 'design/css';
+	/**
+	 * path to js file
+	 *
+	 * @var string
+	 */
 	public $JSDir = 'design/js';
+	/**
+	 * The singleton instance of the class
+	 *
+	 * @var Object
+	 */
+	private static $strutsInstance;
+	
+	/**
+	 * Only allow one instance of this class.  To setup this class use strutsEngine::scaffold()
+	 *
+	 * @access private
+	 * @author Johnathan Pulos
+	 */
+	private function __construct() {
+	  trigger_error("Uset the setup() function to setup this class.", E_ERROR);
+	}
+	
+	/**
+	 * setup the STRUTS Templating Engine
+	 *
+	 * @return object
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	public function scaffold() {
+	  if (!self::$strutsInstance) { 
+      self::$strutsInstance = new strutsEngine(); 
+    } 
+    return self::$strutsInstance;
+	}
 	
 	/**
 	 * Sets an individual variable for the layout file

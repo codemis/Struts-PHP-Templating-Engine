@@ -23,11 +23,12 @@
 	 * @var 	array 	$page_specific_settings an array of page specific settings converted from YAML to a PHP Array thanks to Spyc
 	 */
 	$page_content = $newStrut = $settings = $page_specific_settings = '';
-	
+
 	/**
 	 * Set the strutsEngine object
 	 */
-	$newStrut = new strutsEngine();
+	$newStrut = strutsEngine::scaffold();
+
 	$newStrut->jsFormat = "<script src=\"%s\"></script>\r\n";
 	$newStrut->cssFormat ="<link rel=\"stylesheet\" href=\"%s\">\r\n";
 	$newStrut->siteUrl = ($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'http://www.example.com';//Do not add final slash, NOTE:: change to correct url
