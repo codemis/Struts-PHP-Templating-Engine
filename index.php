@@ -301,10 +301,11 @@
 	unset($settings['global']['keywords']);
 	unset($settings['global']['description']);
 	/**
-	 * Send all the rest of the $page_specific_settings to Struts Engine to become layout variables.
-	 * Now all variables set inthe settings YAML is acessible in the layout using ##variable##
+	 * Send all the rest of the $page_specific_settings to Struts Engine to become layout/page variables.
+	 * Now all variables set in the settings YAML is acessible in the layout using ##variable##
 	 */
 	$newStrut->setLayoutVarFromArray($page_specific_settings, '');
+	$newStrut->setPageVarFromArray($page_specific_settings, '');
 
 	/**
 	 * If the $database_file exists, then include it

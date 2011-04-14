@@ -4,7 +4,7 @@ global:
     description: 'Default Description'
     keywords: 'Default Keywords'
     template: 'example.html'
-    javascript: 'application.js'
+    javascript: ''
     css: 'example.css'
     compress_js: true # to use compression, all files must be in the root js directory,  the js setting will not take / 
     compress_css: true # to use compression, all files must be in the root js directory, the js setting will not take / 
@@ -50,7 +50,7 @@ global:
     keywords: 'Page keywords'
     template: ''
     javascript: ''
-    css: ''
+    css: 'example.css'
     landing_page: false
     cache: true
     changefreq: 'daily'
