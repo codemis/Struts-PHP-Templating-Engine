@@ -44,6 +44,11 @@ Getting Started
 
   2. There are several example pages so once you setup your vhost,  point your browser to http://localhost/example.html or http://localhost/example-directory/example.html.  You can even exclude the file extensions on these paths.  You should now see a styled example page.
 
+Requires
+========
+
+  PHP and cURL
+
 How do you configure it?
 ========================
 
