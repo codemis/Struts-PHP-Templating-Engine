@@ -20,35 +20,24 @@ class strutsEngine
 	 * @var	array 	$pageVars		The array of variables for the page
 	 * @var	string	$strutContents	The content for the specific page
 	 * @var	string	$strutTemplate	The final layout that will be rendered
-	 * @access	private
+	 * @var	string	$jsFormat		The HTML format for including javascript files in sprint_f() format
+	 * @var	string	$cssFormat		The HTML format for including CSS files in sprint_f() format
+	 * @var string $siteUrl url for current site
+	 * @var string $siteWideFilename a file name for the compressed sitewide css
+	 * @var string $CSSDir path to css file
+	 * @var string $JSDir path to js file
 	 * 
 	 **/
 	private $layoutVars = array();
 	private $pageVars = array();
 	private $strutContents = '';
 	private $strutTemplate = '';
-	/**
-	 * set the required variables for the Struts Engine
-	 *
-	 * @var	string	$documentRoot The document root for the site
-	 * @var	string	$jsFormat The HTML format for including javascript files in sprint_f() format
-	 * @var	string	$cssFormat The HTML format for including CSS files in sprint_f() format
-	 * @var	string	$compressedCssFileName The file name for the compressed css file
-	 * @access	public
-	 * 
-	 **/
-	public $documentRoot = '';
-	public $jsFormat = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"%s\"></script>\r\n";
-	public $cssFormat = "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />\r\n";
-	public $compressedCssFileName = 'styles.min.css';
-	
-	/**
-	 * Construct the class
-	 */
-	function __construct ()
-	{
-		$this->documentRoot = ((isset($_SERVER)) && (isset($_SERVER['DOCUMENT_ROOT']))) ? $_SERVER['DOCUMENT_ROOT'] : '';
-	}
+	public $jsFormat = "<script src=\"%s\"></script>\r\n";
+	public $cssFormat = "<link rel=\"stylesheet\" href=\"%s\">\r\n";
+	public $siteUrl = '';
+	public $siteWideFilename = 'sitewide';
+	public $CSSDir = 'design/css';
+	public $JSDir = 'design/js';
 	
 	/**
 	 * Sets an individual variable for the layout file
@@ -100,23 +89,14 @@ class strutsEngine
 	 * @access	public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 **/
-	public function setLayoutJavascriptFromArray($js_files, $directory = null, $compress = null, $js_compress_dir = null, $cache_js = false)
+	public function setLayoutJavascriptFromArray($js_files, $directory = null)
 	{
 		$page_javascript = '';
 		$files_to_compress = '';
 		if(!empty($js_files)){
 			foreach($js_files as $key => $val)
 			{
-				if($compress === true){
-					$files_to_compress .= $val . ',';
-				}else{
-					$page_javascript .= sprintf($this->jsFormat, $directory . '/' . $val);
-				}
-			}
-			if($compress === true){
-				$files_to_compress = substr($files_to_compress,0,-1);
-				$cache_js = ($cache_js === true)? 1 : 0;
-				$page_javascript = sprintf($this->jsFormat, $js_compress_dir . '/' . $cache_js . '/' . $files_to_compress);
+				$page_javascript .= sprintf($this->jsFormat, $directory . '/' . $val);
 			}
 		}else{
 			$page_javascript = '';
@@ -124,6 +104,55 @@ class strutsEngine
 		$this->setLayoutVar("strutJavascript", $page_javascript);
 		return true;
 	}
+	
+	/**
+	 * Compress the layout js.  two files are created, a sitewide and a page specific.  If the files were not modified recently, and exist hand the current files.  Else, compress them.
+	 *
+	 * @param array $sitewide_js_files sitewide js file names
+	 * @param array $page_js_files page specific file names
+	 * @param string $directory directory where compressed files are stored
+	 * @param string $page_url the current page url
+	 * @return boolean
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function setLayoutJSWithCompression($sitewide_js_files, $page_js_files, $directory, $page_url)
+	{
+		$directory = $this->stripFirstSlashInPath($directory);
+		$site_wide_filename = $this->siteWideFilename.'.js';
+		$page_filename = $this->getCompressedFileName($page_url)."_scripts.js";
+		$js_files = $this->processJSFilesForCompression($sitewide_js_files, $site_wide_filename, $directory);
+		$js_files .= $this->processJSFilesForCompression($page_js_files, $page_filename, $directory);
+		$this->setLayoutVar("strutJavascript", $js_files);
+		return true;
+	}
+	
+	/**
+	 * process the given js files.  It first checks if the compressed file exists.  If it does,  then it checks the last modified, and compares to the existing file.  If file does not
+	 * exist, or one of the files has been modified,  it recompresses the file.
+	 *
+	 * @param array $curr_files array of current files
+	 * @param string $new_filename the new filename
+	 * @param string $directory path to compressed directory
+	 * @return string
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function processJSFilesForCompression($curr_files, $new_filename, $directory)
+	{
+		$process_url = $this->siteUrl . '/'.$this->stripFirstSlashInPath($this->JSDir).'/js.php';
+		if(empty($curr_files)) {
+			return '';
+		}
+		if(file_exists($new_filename)) {
+			$last_modified = date("ymdGis", filemtime($new_filename));
+		}else {
+			$this->createCompressedFile($process_url, $curr_files, $directory, $new_filename);
+			$last_modified = date("ymdGis");
+		}
+		return sprintf($this->jsFormat, '/' . $directory . '/' . $new_filename . '?' . $last_modified);
+	}
+	
+	
+	
 	
 	/**
 	 * Sets the ##strutCSS## from an array of CSS filenames
@@ -139,40 +168,105 @@ class strutsEngine
 	 * @access	public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 **/
-	public function setLayoutCSSFromArray($css_files, $css_compress_files = null, $directory = '/', $cache_css = false)
+	public function setLayoutCSSFromArray($css_files, $directory = null)
 	{
 		$page_css = '';
-		$files_to_compress = '';
 		if(!empty($css_files)){
 			foreach($css_files as $key => $val)
 			{
-				$page_css .= sprintf($this->cssFormat, $directory . '/' . $val);
+				$page_css .= sprintf($this->cssFormat, $directory . '/' . $val);				
 			}
 		}else{
 			$page_css = '';
 		}
-		if(!empty($css_compress_files)){
-			$page_css .= sprintf($this->cssFormat, $directory . '/' . $this->compressedCssFileName);
-			$new_file_contents = '';
-			foreach($css_compress_files as $key => $val)
-			{
-				if(strstr($val, 'http://')){
-					if(file_exists($val)){
-						$new_file_contents .= file_get_contents($val);	
-					}
-				}else{
-					echo file_exists($directory . '/' . $val);
-					if(file_exists(realpath($this->documentRoot . '/') . $directory . '/' . $val)){
-						
-						$new_file_contents .= file_get_contents($this->cssFormat, realpath($this->documentRoot . '/') . $directory . '/' . $val);
-						echo file_get_contents($this->cssFormat, realpath($this->documentRoot . '/') . $directory . '/' . $val);
-					}
-				}
-			}
-		}
-		exit;
 		$this->setLayoutVar("strutCSS", $page_css);
 		return true;
+	}
+	
+	/**
+	 * Compress the layout css.  two files are created, a sitewide and a page specific.  If the files were not modified recently, and exist hand the current files.  Else, compress them.
+	 *
+	 * @param array $sitewide_css_files sitewide css file names
+	 * @param array $page_css_files page specific file names
+	 * @param string $directory directory where compressed files are stored
+	 * @param string $page_url the current page url
+	 * @return boolean
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function setLayoutCSSWithCompression($sitewide_css_files, $page_css_files, $directory, $page_url)
+	{
+		$directory = $this->stripFirstSlashInPath($directory);
+		$site_wide_filename = $this->siteWideFilename.'.css';
+		$page_filename = $this->getCompressedFileName($page_url)."_styles.css";
+		$css_files = $this->processCSSFilesForCompression($sitewide_css_files, $site_wide_filename, $directory);
+		$css_files .= $this->processCSSFilesForCompression($page_css_files, $page_filename, $directory);
+		$this->setLayoutVar("strutCSS", $css_files);
+		return true;
+	}
+	
+	/**
+	 * process the given css files.  It first checks if the compressed file exists.  If it does,  then it checks the last modified, and compares to the existing file.  If file does not
+	 * exist, or one of the files has been modified,  it recompresses the file.
+	 *
+	 * @param array $curr_files array of current files
+	 * @param string $new_filename the new filename
+	 * @param string $directory path to compressed directory
+	 * @return string
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function processCSSFilesForCompression($curr_files, $new_filename, $directory)
+	{
+		$process_url = $this->siteUrl . '/'.$this->stripFirstSlashInPath($this->CSSDir).'/css.php';
+		if(empty($curr_files)) {
+			return '';
+		}
+		if(file_exists($new_filename)) {
+			$last_modified = date("ymdGis", filemtime($new_filename));
+		}else {
+			$this->createCompressedFile($process_url, $curr_files, $directory, $new_filename);
+			$last_modified = date("ymdGis");
+		}
+		return sprintf($this->cssFormat, '/' . $directory . '/' . $new_filename . '?' . $last_modified);
+	}
+	
+	/**
+	 * Touches the $process_url file in order to compress the files together
+	 *
+	 * @param string $process_url the url for compressing the files
+	 * @param array $files array of filenames
+	 * @param string $directory the directory to place the files
+	 * @param string $filename the final file name 
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function createCompressedFile($process_url, $files, $directory, $filename)
+	{
+		$files = implode(',', $files);
+		$url = $process_url . '?files='.$files.'&directory='.$directory.'&filename='.$filename;
+
+		$ch = curl_init();    // initialize curl handle
+    curl_setopt($ch, CURLOPT_URL, $url); // set url to post to
+    curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// allow redirects
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER,1); // return into a variable
+    curl_setopt($ch, CURLOPT_TIMEOUT, 3); // times out after 4s
+    $cc_result = curl_exec($ch); // run the whole process
+    curl_close($ch);
+	}
+	
+	/**
+	 * Create a filename for the specific page.
+	 *
+	 * @param string $page_url the current page url
+	 * @return string
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function getCompressedFileName($page_url)
+	{
+		$filename = str_replace('-','_',$page_url);
+		$filename = str_replace('/','_',$filename);
+		return $filename;
 	}
 	
 	/**
@@ -300,7 +394,7 @@ class strutsEngine
 	public function setPageElement($file)
 	{
 		$file_code = $this->prepareFile($file);
-		$this->strutContents .= $this->replaceAllVars($this->pageVars, $file_code);
+		$this->strutContents .= utf8_encode($this->replaceAllVars($this->pageVars, $file_code));
 		$this->setLayoutVar("strutContent", $this->strutContents);
 		return true;
 	}
@@ -374,6 +468,18 @@ class strutsEngine
 			}		
 		}
 		return $file_code;
+	}
+	
+	/**
+	 * strips the first slash in path
+	 *
+	 * @param string $path path to check
+	 * @return string
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function stripFirstSlashInPath($path)
+	{
+		return (substr($path, 0, 1) == '/') ? substr($path,1) : $path;
 	}
 	
 }// END class 
