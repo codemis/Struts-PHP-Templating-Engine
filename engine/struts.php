@@ -102,10 +102,10 @@ class strutsEngine
 	 * @author Johnathan Pulos
 	 */
 	public function scaffold() {
-	  if (!self::$strutsInstance) { 
-      self::$strutsInstance = new strutsEngine(); 
-    } 
-    return self::$strutsInstance;
+	    if (!self::$strutsInstance) { 
+            self::$strutsInstance = new strutsEngine(); 
+        } 
+        return self::$strutsInstance;
 	}
 	
 	/**

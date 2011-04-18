@@ -8,7 +8,14 @@
 	 * @copyright 	11 June, 2010
 	 * @package 	default
 	 **/
-
+	/**
+	 * Start all the sessions
+	 *
+	 * @author Johnathan Pulos
+	 */
+    session_start(); 
+    
+    define("APP_PATH", dirname(__FILE__) ."/");
 	/**
 	 * Include the Struts Templating Engine, and the spyc class that reads the yaml settings
 	 **/
