@@ -4,4 +4,4 @@
 *.DS_Store
 *.swp
 *.out
-php_error.log
+*.log

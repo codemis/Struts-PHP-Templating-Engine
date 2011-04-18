@@ -91,8 +91,17 @@ class strutsEngine
 	 * @author Johnathan Pulos
 	 */
 	private function __construct() {
-	  trigger_error("Uset the setup() function to setup this class.", E_ERROR);
 	}
+	
+	/**
+     * prevent cloning of the object: issues an E_USER_ERROR if this is attempted
+     *
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function __clone()
+    {
+        trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
+    }
 	
 	/**
 	 * setup the STRUTS Templating Engine
