@@ -12,6 +12,7 @@
  * @author Technoguru Aka. Johnathan Pulos  (mailto:johnathan@jpulos.com)
  **/
  require_once('configure.class.php');
+ require_once('routing.class.php');
 class strutsEngine
 {
 	/**
@@ -90,6 +91,12 @@ class strutsEngine
 	 * @var Object
 	 */
 	private static $configureInstance;
+	/**
+	 * The singleton instance of the routing class
+	 *
+	 * @var Object
+	 */
+	private static $routingInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use strutsEngine::scaffold()
@@ -120,6 +127,9 @@ class strutsEngine
 	public function init() {
 	    if (!self::$strutsInstance) { 
             self::$strutsInstance = new strutsEngine(); 
+        }
+        if (!self::$routingInstance) { 
+            self::$routingInstance = Routing::init(); 
         } 
         if (!self::$configureInstance) { 
             self::$configureInstance = Configure::init(); 
@@ -148,6 +158,21 @@ class strutsEngine
 	 */
 	public function readSetting($key) {
 	    return self::$configureInstance->getSetting($key);
+	}
+	
+	/**
+	 * Begins the process of handling the requested page.  Must be called after all settings or it will use default directories
+	 *
+	 * @param string $requestedUrl the url that is eing requested.  It is passed in $_GET['url]
+	 * @return void
+	 * @access public
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function handleRequest($requestedUrl) {
+	    self::$routingInstance->configureInstance = self::$configureInstance;
+	    $currentPage = self::$routingInstance->getCurrentPage($requestedUrl);
+	    $this->setSetting('current_page', $currentPage);
+	    
 	}
 	
 	/**

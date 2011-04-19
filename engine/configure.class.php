@@ -5,7 +5,8 @@
  * @package STRUTS
  * @author Technoguru Aka. Johnathan Pulos
  */
-class Configure{
+class Configure
+{
     /**
      * An array of default settings, to set these use strutsEngine::setSetting()
      *
@@ -35,7 +36,7 @@ class Configure{
 	private static $configureInstance;
 	
 	/**
-	 * Only allow one instance of this class.  To setup this class use Configure::scaffold()
+	 * Only allow one instance of this class.  To setup this class use Configure::init()
 	 *
 	 * @access private
 	 * @author Johnathan Pulos
@@ -63,7 +64,7 @@ class Configure{
 	 */
 	public function init() { 
         if (!self::$configureInstance) { 
-            self::$configureInstance = new configure(); 
+            self::$configureInstance = new Configure(); 
         }
         return self::$configureInstance;
 	}

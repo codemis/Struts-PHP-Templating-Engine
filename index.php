@@ -14,8 +14,6 @@
 	 * @author Johnathan Pulos
 	 */
     session_start(); 
-    
-    define("APP_PATH", dirname(__FILE__) ."/");
 	/**
 	 * Include the Struts Templating Engine, and the spyc class that reads the yaml settings
 	 **/
@@ -30,10 +28,12 @@
 	 * @var 	array 	$page_specific_settings an array of page specific settings converted from YAML to a PHP Array thanks to Spyc
 	 */
 	$page_content = $newStrut = $settings = $page_specific_settings = '';
-
-	/**
-	 * Set the strutsEngine object
-	 */
+    define("APP_PATH", dirname(__FILE__) ."/");
+    /**
+     * Setup the strutsEngine object
+     *
+     * @author Technoguru Aka. Johnathan Pulos
+     */
 	$newStrut = strutsEngine::init();
 	$newStrut->setSetting('default_layout', 'example_test.html');
 	$newStrut->setSetting('settings_file', 'settings/site.yml');
@@ -41,16 +41,19 @@
 	$newStrut->setSetting('cache_time', 600);
 	$newStrut->setSetting('cache_ext', 'cache');
 	$strutDirectories = array();
-	$strutDirectories['cache'] = 'tmp/';
-	$strutDirectories['pages'] = 'design/pages';
-	$strutDirectories['pages_code'] = 'code/pages';
-	$strutDirectories['modules'] = 'design/modules';
-	$strutDirectories['modules_code'] = 'code/modules';
-	$strutDirectories['layouts'] = 'design/layouts';
-	$strutDirectories['css'] = '/design/css';
-	$strutDirectories['js'] = '/design/js';
-	$strutDirectories['elements'] = 'design/elements';
+    $strutDirectories['cache'] = 'tmp/';
+    $strutDirectories['pages'] = 'design/pages';
+    $strutDirectories['pages_code'] = 'code/pages';
+    $strutDirectories['modules'] = 'design/modules';
+    $strutDirectories['modules_code'] = 'code/modules';
+    $strutDirectories['layouts'] = 'design/layouts';
+    $strutDirectories['css'] = '/design/css';
+    $strutDirectories['js'] = '/design/js';
+    $strutDirectories['elements'] = 'design/elements';
 	$newStrut->setSetting('directories', $strutDirectories);
+	$newStrut->handleRequest($_GET['url']);
+	
+	
 	
 	$newStrut->jsFormat = "<script src=\"%s\"></script>\r\n";
 	$newStrut->cssFormat ="<link rel=\"stylesheet\" href=\"%s\">\r\n";
@@ -98,7 +101,7 @@
 
 	/**
 	 * If they append a index.html,  see if it is valid, if not remove it
-	 *
+	 * @todo goes into the configuration file
 	 * @author Johnathan Pulos
 	 */
 	if (strpos($page_url, 'index.html') != false) {
