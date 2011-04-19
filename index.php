@@ -34,7 +34,23 @@
 	/**
 	 * Set the strutsEngine object
 	 */
-	$newStrut = strutsEngine::scaffold();
+	$newStrut = strutsEngine::init();
+	$newStrut->setSetting('default_layout', 'example_test.html');
+	$newStrut->setSetting('settings_file', 'settings/site.yml');
+	$newStrut->setSetting('database_file', 'settings/database.inc.php');
+	$newStrut->setSetting('cache_time', 600);
+	$newStrut->setSetting('cache_ext', 'cache');
+	$strutDirectories = array();
+	$strutDirectories['cache'] = 'tmp/';
+	$strutDirectories['pages'] = 'design/pages';
+	$strutDirectories['pages_code'] = 'code/pages';
+	$strutDirectories['modules'] = 'design/modules';
+	$strutDirectories['modules_code'] = 'code/modules';
+	$strutDirectories['layouts'] = 'design/layouts';
+	$strutDirectories['css'] = '/design/css';
+	$strutDirectories['js'] = '/design/js';
+	$strutDirectories['elements'] = 'design/elements';
+	$newStrut->setSetting('directories', $strutDirectories);
 	
 	$newStrut->jsFormat = "<script src=\"%s\"></script>\r\n";
 	$newStrut->cssFormat ="<link rel=\"stylesheet\" href=\"%s\">\r\n";

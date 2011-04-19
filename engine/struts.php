@@ -11,6 +11,7 @@
  * @package default
  * @author Technoguru Aka. Johnathan Pulos  (mailto:johnathan@jpulos.com)
  **/
+ require_once('configure.class.php');
 class strutsEngine
 {
 	/**
@@ -83,6 +84,12 @@ class strutsEngine
 	 * @var Object
 	 */
 	private static $strutsInstance;
+	/**
+	 * The singleton instance of the configure class
+	 *
+	 * @var Object
+	 */
+	private static $configureInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use strutsEngine::scaffold()
@@ -110,11 +117,37 @@ class strutsEngine
 	 * @access public
 	 * @author Johnathan Pulos
 	 */
-	public function scaffold() {
+	public function init() {
 	    if (!self::$strutsInstance) { 
             self::$strutsInstance = new strutsEngine(); 
         } 
+        if (!self::$configureInstance) { 
+            self::$configureInstance = Configure::init(); 
+        }
         return self::$strutsInstance;
+	}
+	
+	/**
+	 * Set the configuration settings
+	 *
+	 * @param string $key The configuration key
+	 * @param mixed $value The configuration value
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function setSetting($key, $value) {
+	    self::$configureInstance->setSetting($key, $value);
+	}
+	
+	/**
+	 * Get the configuration settings
+	 *
+	 * @param string $key The configuration key
+	 * @return mixed
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function readSetting($key) {
+	    return self::$configureInstance->getSetting($key);
 	}
 	
 	/**
