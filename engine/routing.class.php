@@ -26,6 +26,12 @@ class Routing
 	 * @var Object
 	 */
 	public static $configureInstance;
+	/**
+	 * The singleton instance of the logging class
+	 *
+	 * @var Object
+	 */
+	public static $loggingInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use Routing::init()
@@ -70,6 +76,7 @@ class Routing
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function getCurrentPage($requestedUrl) {
+	    self::trace('Starting Routing::getCurrentPage(), $requestedUrl = "'.$requestedUrl.'"', __LINE__);
 	    $this->currentPage['request'] = $requestedUrl;
 	    $this->currentPage['page'] = $this->getRequestedPage();
 	    $pages_code_directory = $this->configureInstance->getDirectory('pages_code');
@@ -108,6 +115,17 @@ class Routing
     	    $requestedPage = substr($requestedPage, 0, strrpos($requestedPage, '.')); 
     	}	
 	    return $requestedPage;
+	}
+	
+	/**
+	 * convienence method for logging traces
+	 *
+	 * @param string $message message to add to stack 
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function trace($message, $line = '') {
+	    $this->loggingInstance->logTrace('<strong>Routing (line# '.$line.')</strong>: '.$message);
 	}
 }
 ?>

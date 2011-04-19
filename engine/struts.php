@@ -13,6 +13,7 @@
  **/
  require_once('configure.class.php');
  require_once('routing.class.php');
+ require_once('logging.class.php');
 class strutsEngine
 {
 	/**
@@ -97,6 +98,12 @@ class strutsEngine
 	 * @var Object
 	 */
 	private static $routingInstance;
+	/**
+	 * The singleton instance of the logging class
+	 *
+	 * @var Object
+	 */
+	private static $loggingInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use strutsEngine::scaffold()
@@ -125,15 +132,35 @@ class strutsEngine
 	 * @author Johnathan Pulos
 	 */
 	public function init() {
-	    if (!self::$strutsInstance) { 
+	    if (!self::$loggingInstance) { 
+            self::$loggingInstance = Logging::init();
+             
+            self::trace('Completed initializing Logging Class', __LINE__);
+        }
+	    if (!self::$strutsInstance) {
+            self::trace('Started initializing strutsEngine Class', __LINE__); 
+            
             self::$strutsInstance = new strutsEngine(); 
+            
+            self::trace('Completed initializing strutsEngine Class', __LINE__);
         }
         if (!self::$routingInstance) { 
-            self::$routingInstance = Routing::init(); 
+            self::trace('Started initializing Routing Class', __LINE__);
+            
+            self::$routingInstance = Routing::init();
+            self::$routingInstance->loggingInstance = self::$loggingInstance;
+            
+            self::trace('Completed initializing Routing Class', __LINE__); 
         } 
-        if (!self::$configureInstance) { 
-            self::$configureInstance = Configure::init(); 
+        if (!self::$configureInstance) {
+            self::trace('Started initializing Configure Class', __LINE__);
+             
+            self::$configureInstance = Configure::init();
+            
+            self::trace('Completed initializing Configure Class', __LINE__); 
         }
+        self::trace('Completed strutsEngine::init()', __LINE__); 
+    
         return self::$strutsInstance;
 	}
 	
@@ -161,6 +188,16 @@ class strutsEngine
 	}
 	
 	/**
+	 * spits out the complete backtrace and exits the code.
+	 *
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function debug() {
+	    self::$loggingInstance->errorHandler();
+	}
+	
+	/**
 	 * Begins the process of handling the requested page.  Must be called after all settings or it will use default directories
 	 *
 	 * @param string $requestedUrl the url that is eing requested.  It is passed in $_GET['url]
@@ -172,7 +209,6 @@ class strutsEngine
 	    self::$routingInstance->configureInstance = self::$configureInstance;
 	    $currentPage = self::$routingInstance->getCurrentPage($requestedUrl);
 	    $this->setSetting('current_page', $currentPage);
-	    
 	}
 	
 	/**
@@ -616,6 +652,17 @@ class strutsEngine
 	private function stripFirstSlashInPath($path)
 	{
 		return (substr($path, 0, 1) == '/') ? substr($path,1) : $path;
+	}
+	
+	/**
+	 * convienence method for logging traces
+	 *
+	 * @param string $message message to add to stack 
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function trace($message, $line = '') {
+	    self::$loggingInstance->logTrace('<strong>strutsEngine (line# '.$line.')</strong>: '.$message);
 	}
 	
 }// END class 
