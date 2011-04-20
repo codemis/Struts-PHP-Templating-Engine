@@ -88,6 +88,7 @@ class Routing
             $this->currentPage['page_file'] = $pages_directory;
             $this->currentPage['php_file'] = $pages_code_directory;
     	}
+        self::trace('<em>getCurrentPage() Returning</em> - '.var_export($this->currentPage, true), __LINE__);
 	    return $this->currentPage;
 	}
 	
@@ -99,6 +100,7 @@ class Routing
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	private function getRequestedPage() {
+	    self::trace('Starting getRequestedPage()', __LINE__);
 	    $requestedUrl = $this->currentPage['request'];
 	    $requestedPage = '';
 	    if(isset($requestedUrl)) {
@@ -113,7 +115,8 @@ class Routing
          */
     	if (strpos($requestedPage, '.') != false) {
     	    $requestedPage = substr($requestedPage, 0, strrpos($requestedPage, '.')); 
-    	}	
+    	}
+    	self::trace('<em>getRequestedPage() Returning</em> - '.$requestedPage, __LINE__);	
 	    return $requestedPage;
 	}
 	
