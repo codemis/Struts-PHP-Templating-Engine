@@ -20,7 +20,7 @@
      * @author Technoguru Aka. Johnathan Pulos
      */
 	include("engine/struts_engine.class.php");
-	include("engine/spyc/spyc.php");
+	include("engine/vendors/spyc/spyc.php");
 	
 	/**
 	 * Set the various variables for use later in the script.
@@ -52,7 +52,7 @@
 	 *
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	$newStrut->setSetting('debug_level', 3);
+	$newStrut->setSetting('debug_level', 2);
 	$strutDirectories = array();
     $strutDirectories['cache'] = 'tmp/';
     $strutDirectories['pages'] = 'design/pages';
@@ -66,7 +66,7 @@
 	$newStrut->setSetting('directories', $strutDirectories);
 	$newStrut->handleRequest($_GET['url']);
 	$newStrut->readSetting('cache_time');
-	//trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
+	trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
 	$newStrut->jsFormat = "<script src=\"%s\"></script>\r\n";
 	$newStrut->cssFormat ="<link rel=\"stylesheet\" href=\"%s\">\r\n";
 	$newStrut->siteUrl = ($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'http://www.example.com';//Do not add final slash, NOTE:: change to correct url
@@ -138,6 +138,7 @@
 		require_once('code/functions/recursive_directory_scan.php');
 		/**
 		 * remove CSS temp files
+		 * 
 		 *
 		 * @author Technoguru Aka. Johnathan Pulos
 		 */
