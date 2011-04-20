@@ -29,15 +29,24 @@ class Configure
                                         )
     );
     /**
+     * The current settings array parsed from the settings yaml file
+     *
+     * @var array
+     * @access public
+     */
+    public $SPYCSettings = array();
+    /**
 	 * The singleton instance of the configure class
 	 *
 	 * @var Object
+	 * @access private
 	 */
 	private static $configureInstance;
 	/**
 	 * The singleton instance of the logging class
 	 *
 	 * @var Object
+	 * @access private
 	 */
 	public static $loggingInstance;
 	
@@ -134,6 +143,68 @@ class Configure
     	        return '';
 	        }
 	    }
+	}
+
+	/**
+	 * Get/Set the global specific settings from the settings.yml
+	 * 
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function initGlobalSettings() {
+	    self::trace('Starting initGlobalSettings()', __LINE__);
+        $this->setSetting('global_settings', $this->SPYCSettings['global']);
+    	self::trace('Ending initGlobalSettings()', __LINE__);
+	}
+		
+	/**
+	 * Get/Set the page specific settings from the settings.yml
+	 * 
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function initPageSettings() {
+	    self::trace('Starting initPageSettings()', __LINE__);
+	    if(!$this->current_page) {
+	        trigger_error('You must first set Setting[current_page] before calling this method.', E_USER_ERROR);
+	    }
+	    $current_page = $this->current_page['page'];
+	    /**
+    	 * If they append a index,  see if it is valid, if not remove it
+    	 * @todo goes into the configuration file
+    	 * @author Johnathan Pulos
+    	 */
+    	if (strpos($current_page, 'index') != false) {
+    	    if(!array_key_exists($current_page, $this->SPYCSettings)) {
+    			$current_page = substr($current_page, 0, strrpos($current_page, '/index')); 
+    		}
+    	}
+    	print_r($this->current_page);
+    	echo $current_page;
+	    exit;
+        $this->setSetting('page_settings', $this->SPYCSettings[$this->current_page['page']]);
+    	self::trace('Ending initPageSettings()', __LINE__);
+	}
+	
+	/**
+	 * If SPYCSettings is empty then pars the YAML and set the class var
+	 *
+	 * @return void
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function setSPYCSettings() {
+	    self::trace('Starting setSPYCSettings()', __LINE__);
+	    if(empty($this->SPYCSettings)) {
+            $settingsFile = APP_PATH.$this->getSetting('settings_file');
+        	self::trace('Setting class var SPYCSettings from file: '.$settingsFile, __LINE__);
+        	if(file_exists($settingsFile)) {
+        	    $this->SPYCSettings = Spyc::YAMLLoad($settingsFile);   
+        	}else {
+        	    trigger_error('Unable to find the settings file at '.$settingsFile.'.', E_USER_ERROR);
+        	}
+        }
+        self::trace('Ending setSPYCSettings()', __LINE__);
 	}
 	
 	/**

@@ -9,27 +9,38 @@
 class Routing
 {
     /**
+     * The current settings array parsed from the settings yaml file
+     *
+     * @var array
+     * @access public
+     */
+    public $SPYCSettings = array();
+    /**
      * An array holding specific information about the current page.
      *
      * @var array
+     * @access private
      */
     private $currentPage = array();
     /**
 	 * The singleton instance of the routing class
 	 *
 	 * @var Object
+	 * @access private
 	 */
 	private static $routingInstance;
 	/**
 	 * The singleton instance of the configure class
 	 *
 	 * @var Object
+	 * @access private
 	 */
 	public static $configureInstance;
 	/**
 	 * The singleton instance of the logging class
 	 *
 	 * @var Object
+	 * @access private
 	 */
 	public static $loggingInstance;
 	
@@ -76,14 +87,17 @@ class Routing
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function getCurrentPage($requestedUrl) {
+        if(empty($this->SPYCSettings)) {
+            trigger_error('You must first set the class var SPYCSettings before calling this method.', E_USER_ERROR);
+        }
 	    self::trace('Starting getCurrentPage("'.$requestedUrl.'")', __LINE__);
 	    $this->currentPage['request'] = $requestedUrl;
 	    $this->currentPage['page'] = $this->getRequestedPage();
 	    $pages_code_directory = $this->configureInstance->getDirectory('pages_code');
 	    $pages_directory = $this->configureInstance->getDirectory('pages');
 	    if(!empty($this->currentPage['page'])){
-            $this->currentPage['page_file'] = $pages_directory . '/' . $this->currentPage['page'];
-            $this->currentPage['php_file'] = $pages_code_directory . '/' . $this->currentPage['page'];
+            $this->currentPage['page_file'] = $pages_directory . '/' . $this->currentPage['page'] . '.html';
+            $this->currentPage['php_file'] = $pages_code_directory . '/' . $this->currentPage['page'] . '.php';
     	}else{
             $this->currentPage['page_file'] = $pages_directory;
             $this->currentPage['php_file'] = $pages_code_directory;
@@ -106,8 +120,25 @@ class Routing
 	    if(isset($requestedUrl)) {
 	        $requestedPage = trim($requestedUrl);
 	    }else {
-	        $requestedPage = 'index.html'; 
+	        $requestedPage = 'index'; 
 	    }
+	    /**
+    	 * If they append a index.html,  see if it is valid, if not remove it
+    	 * @author Johnathan Pulos
+    	 */
+    	if (strpos($requestedPage, 'index.html') != false) {
+    	    if(!array_key_exists($requestedPage, $this->SPYCSettings)) {
+    			$requestedPage = substr($requestedPage, 0, strrpos($requestedPage, '/index.html')); 
+    		}
+    	}
+    	/**
+    	 * Handle 404 errors
+    	 *
+    	 * @author Technoguru Aka. Johnathan Pulos
+    	 */
+     	if (isset($requestedPage) && !array_key_exists($requestedPage, $this->SPYCSettings)) {
+     	    $requestedPage = '404';
+     	}
         /**
          * If an extension exists on $page_url then remove it
          *

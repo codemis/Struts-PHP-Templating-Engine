@@ -220,8 +220,12 @@ class strutsEngine
 	 */
 	public function handleRequest($requestedUrl) {
 	    self::trace('handleRequest("'.$requestedUrl.'")', __LINE__);
+	    self::$configureInstance->setSPYCSettings();
+	    self::$routingInstance->SPYCSettings = self::$configureInstance->SPYCSettings;
 	    $currentPage = self::$routingInstance->getCurrentPage($requestedUrl);
 	    $this->setSetting('current_page', $currentPage);
+	    self::$configureInstance->initGlobalSettings();
+	    self::$configureInstance->initPageSettings();
 	}
 	
 	/**
@@ -426,10 +430,9 @@ class strutsEngine
 	 */
 	private function createCompressedFile($process_url, $files, $directory, $filename)
 	{
-		$files = implode(',', $files);
-		$url = $process_url . '?files='.$files.'&directory='.$directory.'&filename='.$filename;
-        echo $url;
-		$ch = curl_init();    // initialize curl handle
+	$files = implode(',', $files);
+	$url = $process_url . '?files='.$files.'&directory='.$directory.'&filename='.$filename;
+	$ch = curl_init();    // initialize curl handle
     curl_setopt($ch, CURLOPT_URL, $url); // set url to post to
     curl_setopt($ch, CURLOPT_FAILONERROR, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// allow redirects
