@@ -27,6 +27,14 @@ class Logging
 	 * @var Object
 	 */
 	public static $configureInstance;
+	/**
+	 * The location of the log file
+	 *
+	 * @var string
+	 * @access private
+	 */
+	private $log_file = 'logs/stack_trace.log';
+
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use Logging::init()
@@ -88,8 +96,12 @@ class Logging
 	
 	/**
 	 * custom error handling that adds a backtrace to the error.
-	 *
-	 * @return void
+ 	 *
+ 	 * @param string $errno PHP error number
+ 	 * @param string $errstr PHP error string
+ 	 * @param string $errfile PHP error file name
+ 	 * @param string $errline PHP error line number
+	 * @return boolean
 	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
@@ -104,10 +116,33 @@ class Logging
         }
         $debug_level = $this->configureInstance->getSetting('debug_level');
         switch ($debug_level) {
+            case 3:
+                $this->displayError($errno, $errstr, $errfile, $errline);
+                if($errno == E_USER_ERROR) {
+                    /**
+                     * Fatal Error
+                     * 
+                     *
+                     * @author Technoguru Aka. Johnathan Pulos
+                     */
+                    exit(1);
+                }
+                break;
             case 2:
                 $this->displayError($errno, $errstr, $errfile, $errline);
+                $this->writeStackTraceToLog($errno, $errstr, $errfile, $errline);
+                if($errno == E_USER_ERROR) {
+                    /**
+                     * Fatal Error
+                     * 
+                     *
+                     * @author Technoguru Aka. Johnathan Pulos
+                     */
+                    exit(1);
+                }
                 break;
             case 1:
+                $this->writeStackTraceToLog($errno, $errstr, $errfile, $errline);
                 break;
             default:
                 break;
@@ -115,6 +150,43 @@ class Logging
 	    return true;
 	}
 	
+	/**
+	 * Write to the log file
+	 *
+	 * @param string $message the message to write to the log
+	 * @return void
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+    private function writeToLog($message){
+        $log_file = APP_PATH . '/engine/' . $this->log_file;
+        /**
+         * open log file for writing only; place the file pointer at the end of the file 
+         * if the file does not exist, attempt to create it
+         *
+         * @author Technoguru Aka. Johnathan Pulos
+         */
+        $fp = fopen($log_file, 'w') or exit("Unable to open the log file @ ".$log_file);
+        /**
+         * Define the script name
+         *
+         * @author Technoguru Aka. Johnathan Pulos
+         */
+        fwrite($fp, "$message\n");
+        fclose($fp);
+    }
+	
+	/**
+	 * Display the error to the current view
+	 *
+	 * @param string $errno PHP error number
+	 * @param string $errstr PHP error string
+	 * @param string $errfile PHP error file name
+	 * @param string $errline PHP error line number
+	 * @return void
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
 	private function displayError($errno, $errstr, $errfile, $errline) {
 	    switch ($errno) {
             case E_USER_ERROR:
@@ -124,7 +196,6 @@ class Logging
                 foreach($stacktrace as $trace) {
         	        echo $trace . '<br>';
         	    }
-                exit(1);
                 break;
             case E_USER_WARNING:
                 echo "<strong>PHP Warning (Line #$errline code: #$errno)</strong>: $errstr<br>";
@@ -136,6 +207,41 @@ class Logging
                 echo "<strong>Unknown error type (Line #$errline code: #$errno)</strong>: $errstr<br>";
                 break;
         }
+	}
+	
+	/**
+	 * Write the errors to the log file
+	 *
+	 * @param string $errno PHP error number
+	 * @param string $errstr PHP error string
+	 * @param string $errfile PHP error file name
+	 * @param string $errline PHP error line number
+	 * @return void
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function writeStackTraceToLog($errno, $errstr, $errfile, $errline) {
+	    $message = "";
+	    switch ($errno) {
+            case E_USER_ERROR:
+                $message = "PHP error (Line #$errline code: #$errno): $errstr\n";
+                $message .= "STRUTS PHP Stack Trace\n\n";
+                $stacktrace = $this->stacktrace;
+                foreach($stacktrace as $trace) {
+        	        $message .= strip_tags(str_replace("<br>", "\n", $trace)) . "\n";
+        	    }
+                break;
+            case E_USER_WARNING:
+                $message .= "PHP Warning (Line #$errline code: #$errno): $errstr\n";
+                break;
+            case E_USER_NOTICE:
+                $message .= "PHP Notice (Line #$errline code: #$errno): $errstr\n";
+                break;
+            default:
+                $message .= "Unknown error type (Line #$errline code: #$errno): $errstr\n";
+                break;
+        }
+        $this->writeToLog($message);
 	}
 	
 }
