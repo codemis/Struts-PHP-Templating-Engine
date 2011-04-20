@@ -85,7 +85,8 @@ class Configure
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function setSetting($key, $value) {
-	    self::trace('Starting setSetting("'.$key.'", "'.$value.'")', __LINE__);
+	    $printed_value = (is_array($value)) ? var_export($value,true) : $value;
+	    self::trace('Starting setSetting("'.$key.'", "'.$printed_value.'")', __LINE__);
 	    $this->{$key} = $value;
 	}
 	
@@ -100,7 +101,8 @@ class Configure
 	public function getSetting($key) {
 	    self::trace('Starting getSetting("'.$key.'")', __LINE__);
 	    if($this->{$key}) {
-	        self::trace('<em>getSetting() Returning</em> - '.$this->{$key}, __LINE__);
+	        $printed_value = (is_array($this->{$key})) ? var_export($this->{$key},true) : $this->{$key};
+	        self::trace('<em>getSetting() Returning</em> - '.$printed_value, __LINE__);
 	        return $this->{$key};   
 	    }else {
 	        self::trace('<em>getSetting() Returning</em> - null (variable not set)', __LINE__);
