@@ -8,12 +8,12 @@
 class Logging
 {
     /**
-     * An array holding each step completed in the backtrace
+     * An array holding each step completed in the stacktrace
      *
      * @var array
      * @access private
      */
-    private $backtrace = array();
+    private $stacktrace = array();
     /**
 	 * The singleton instance of the routing class
 	 *
@@ -66,7 +66,7 @@ class Logging
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function logTrace($trace) {
-	    array_unshift($this->backtrace, $trace.' @ '.date("d/m/y : H:i:s", time()));
+	    array_unshift($this->stacktrace, $trace.' @ '.date("d/m/y : H:i:s", time()));
 	}
 	
 	/**
@@ -76,8 +76,8 @@ class Logging
 	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	public function getBacktrace() {
-	    return $this->backtrace;
+	public function getStacktrace() {
+	    return $this->stacktrace;
 	}
 	
 	/**
@@ -88,7 +88,7 @@ class Logging
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function errorHandler($errno, $errstr, $errfile, $errline) {
-	    $backtrace = $this->backtrace;
+	    $stacktrace = $this->stacktrace;
 	    if (!(error_reporting() & $errno)) {
             /**
              * This error code is not included in error_reporting
@@ -100,8 +100,8 @@ class Logging
         switch ($errno) {
             case E_USER_ERROR:
                 echo "<strong>PHP error (Line #$errline code: #$errno)</strong>: $errstr<br>";
-                echo "<h3>STRUTS PHP Backtrace</h3>";
-                foreach($backtrace as $trace) {
+                echo "<h3>STRUTS PHP Stacktrace</h3>";
+                foreach($stacktrace as $trace) {
         	        echo $trace . '<br>';
         	    }
                 exit(1);
