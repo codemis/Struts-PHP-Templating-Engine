@@ -47,7 +47,7 @@ Getting Started
 Requires
 ========
 
-  PHP and cURL
+  PHP 5+ and cURL
 
 How do you configure it?
 ========================

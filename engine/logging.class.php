@@ -11,12 +11,14 @@ class Logging
      * An array holding each step completed in the backtrace
      *
      * @var array
+     * @access private
      */
     private $backtrace = array();
     /**
 	 * The singleton instance of the routing class
 	 *
 	 * @var Object
+	 * @access private
 	 */
 	private static $loggingInstance;
 	
@@ -60,6 +62,7 @@ class Logging
 	 *
 	 * @param string $trace The trace message to stack
 	 * @return void
+	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function logTrace($trace) {
@@ -70,6 +73,7 @@ class Logging
 	 * Get the current backtrace.
 	 *
 	 * @return array
+	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function getBacktrace() {
@@ -80,6 +84,7 @@ class Logging
 	 * custom error handling that adds a backtrace to the error.
 	 *
 	 * @return void
+	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function errorHandler($errno, $errstr, $errfile, $errline) {

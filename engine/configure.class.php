@@ -34,6 +34,12 @@ class Configure
 	 * @var Object
 	 */
 	private static $configureInstance;
+	/**
+	 * The singleton instance of the logging class
+	 *
+	 * @var Object
+	 */
+	public static $loggingInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use Configure::init()
@@ -64,7 +70,7 @@ class Configure
 	 */
 	public function init() { 
         if (!self::$configureInstance) { 
-            self::$configureInstance = new Configure(); 
+            self::$configureInstance = new Configure();
         }
         return self::$configureInstance;
 	}
@@ -79,6 +85,7 @@ class Configure
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function setSetting($key, $value) {
+	    self::trace('Starting setSetting("'.$key.'", "'.$value.'")', __LINE__);
 	    $this->{$key} = $value;
 	}
 	
@@ -91,9 +98,12 @@ class Configure
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function getSetting($key) {
+	    self::trace('Starting getSetting("'.$key.'")', __LINE__);
 	    if($this->{$key}) {
-	     return $this->{$key};   
+	        self::trace('<em>getSetting() Returning</em> - '.$this->{$key}, __LINE__);
+	        return $this->{$key};   
 	    }else {
+	        self::trace('<em>getSetting() Returning</em> - null (variable not set)', __LINE__);
 	        return null;
 	    }
 	}
@@ -107,11 +117,33 @@ class Configure
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function getDirectory($dir) {
+	    self::trace('Starting getDirectory("'.$dir.'")', __LINE__);
 	    if(($this->directories) && (array_key_exists($dir, $this->directories) && !empty($this->directories[$dir]))) {
-	        return $this->directories[$dir];
+	        $directory = $this->directories[$dir];
+	        self::trace('<em>getDirectory() Returning</em> - '.$directory, __LINE__);
+	        return $directory;
 	    }else {
-	        return $this->defaultSettings['directories'][$dir];
+	        if(array_key_exists($dir, $this->defaultSettings['directories']) && !empty($this->defaultSettings['directories'][$dir])) {
+	            $directory = $this->defaultSettings['directories'][$dir];
+    	        self::trace('<em>getDirectory() Returning Default</em> - '.$directory, __LINE__);
+    	        return $directory;
+	        }else {
+    	        self::trace('<em>getDirectory() Returning Default</em> - empty string (directory not set)', __LINE__);
+    	        return '';
+	        }
 	    }
 	}
+	
+	/**
+	 * convienence method for logging traces
+	 *
+	 * @param string $message message to add to stack 
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function trace($message, $line = '') {
+	    $this->loggingInstance->logTrace('<strong>Configure (line# '.$line.')</strong>: '.$message);
+	}
+
 }
 ?>

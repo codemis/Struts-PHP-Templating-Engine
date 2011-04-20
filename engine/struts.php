@@ -125,7 +125,7 @@ class strutsEngine
     }
 	
 	/**
-	 * setup the STRUTS Templating Engine
+	 * setup the STRUTS Templating Engine.  Initializes are the necessary classes, and sneds necessary objects to the other classes
 	 *
 	 * @return object
 	 * @access public
@@ -156,9 +156,13 @@ class strutsEngine
             self::trace('Started initializing Configure Class', __LINE__);
              
             self::$configureInstance = Configure::init();
+            self::$configureInstance->loggingInstance = self::$loggingInstance;
+            
+            self::$routingInstance->configureInstance = self::$configureInstance;
             
             self::trace('Completed initializing Configure Class', __LINE__); 
         }
+	    
         self::trace('Completed strutsEngine::init()', __LINE__); 
     
         return self::$strutsInstance;
@@ -173,6 +177,8 @@ class strutsEngine
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function setSetting($key, $value) {
+	    $printed_value = (is_array($value)) ? var_export($value,true) : $value;
+	    self::trace('setSetting("'.$key.'", "'.$printed_value.'")', __LINE__);
 	    self::$configureInstance->setSetting($key, $value);
 	}
 	
@@ -184,7 +190,10 @@ class strutsEngine
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function readSetting($key) {
-	    return self::$configureInstance->getSetting($key);
+	    self::trace('readSetting("'.$key.'")', __LINE__);
+	    $setting = self::$configureInstance->getSetting($key);
+	    self::trace('<em>readSetting() Returning</em> - '.$setting, __LINE__);
+	    return $setting;
 	}
 	
 	/**
@@ -206,7 +215,7 @@ class strutsEngine
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function handleRequest($requestedUrl) {
-	    self::$routingInstance->configureInstance = self::$configureInstance;
+	    self::trace('handleRequest("'.$requestedUrl.'")', __LINE__);
 	    $currentPage = self::$routingInstance->getCurrentPage($requestedUrl);
 	    $this->setSetting('current_page', $currentPage);
 	}

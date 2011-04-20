@@ -76,7 +76,7 @@ class Routing
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function getCurrentPage($requestedUrl) {
-	    self::trace('Starting Routing::getCurrentPage(), $requestedUrl = "'.$requestedUrl.'"', __LINE__);
+	    self::trace('Starting getCurrentPage("'.$requestedUrl.'")', __LINE__);
 	    $this->currentPage['request'] = $requestedUrl;
 	    $this->currentPage['page'] = $this->getRequestedPage();
 	    $pages_code_directory = $this->configureInstance->getDirectory('pages_code');
