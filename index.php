@@ -19,7 +19,7 @@
      *
      * @author Technoguru Aka. Johnathan Pulos
      */
-	include("engine/struts.php");
+	include("engine/struts_engine.class.php");
 	include("engine/spyc/spyc.php");
 	
 	/**
@@ -66,7 +66,7 @@
 	$newStrut->setSetting('directories', $strutDirectories);
 	$newStrut->handleRequest($_GET['url']);
 	$newStrut->readSetting('cache_time');
-	trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
+	//trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
 	$newStrut->jsFormat = "<script src=\"%s\"></script>\r\n";
 	$newStrut->cssFormat ="<link rel=\"stylesheet\" href=\"%s\">\r\n";
 	$newStrut->siteUrl = ($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'http://www.example.com';//Do not add final slash, NOTE:: change to correct url
