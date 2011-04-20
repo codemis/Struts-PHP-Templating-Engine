@@ -42,6 +42,15 @@
 	$newStrut->setSetting('database_file', 'settings/database.inc.php');
 	$newStrut->setSetting('cache_time', 600);
 	$newStrut->setSetting('cache_ext', 'cache');
+	/**
+	 * Set the level of debugging.
+	 * 
+	 * 2 - Display full stack trace when an error occurs, and write the trace to the log files (development)
+	 * 1 - Write stack trace into log file, but display error page
+	 *
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	$newStrut->setSetting('debug_level', 2);
 	$strutDirectories = array();
     $strutDirectories['cache'] = 'tmp/';
     $strutDirectories['pages'] = 'design/pages';

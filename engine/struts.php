@@ -159,6 +159,7 @@ class strutsEngine
             self::$configureInstance->loggingInstance = self::$loggingInstance;
             
             self::$routingInstance->configureInstance = self::$configureInstance;
+            self::$loggingInstance->configureInstance = self::$configureInstance;
             
             self::trace('Completed initializing Configure Class', __LINE__); 
         }

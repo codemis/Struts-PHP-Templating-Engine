@@ -21,6 +21,12 @@ class Logging
 	 * @access private
 	 */
 	private static $loggingInstance;
+	/**
+	 * The singleton instance of the configure class
+	 *
+	 * @var Object
+	 */
+	public static $configureInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use Logging::init()
@@ -88,7 +94,6 @@ class Logging
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function errorHandler($errno, $errstr, $errfile, $errline) {
-	    $stacktrace = $this->stacktrace;
 	    if (!(error_reporting() & $errno)) {
             /**
              * This error code is not included in error_reporting
@@ -97,10 +102,25 @@ class Logging
              */
             return;
         }
-        switch ($errno) {
+        $debug_level = $this->configureInstance->getSetting('debug_level');
+        switch ($debug_level) {
+            case 2:
+                $this->displayError($errno, $errstr, $errfile, $errline);
+                break;
+            case 1:
+                break;
+            default:
+                break;
+        }
+	    return true;
+	}
+	
+	private function displayError($errno, $errstr, $errfile, $errline) {
+	    switch ($errno) {
             case E_USER_ERROR:
                 echo "<strong>PHP error (Line #$errline code: #$errno)</strong>: $errstr<br>";
-                echo "<h3>STRUTS PHP Stacktrace</h3>";
+                echo "<h3>STRUTS PHP Stack Trace</h3>";
+                $stacktrace = $this->stacktrace;
                 foreach($stacktrace as $trace) {
         	        echo $trace . '<br>';
         	    }
@@ -116,7 +136,6 @@ class Logging
                 echo "<strong>Unknown error type (Line #$errline code: #$errno)</strong>: $errstr<br>";
                 break;
         }
-	    return true;
 	}
 	
 }
