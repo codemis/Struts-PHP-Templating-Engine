@@ -428,7 +428,7 @@ class strutsEngine
 	{
 		$files = implode(',', $files);
 		$url = $process_url . '?files='.$files.'&directory='.$directory.'&filename='.$filename;
-
+        echo $url;
 		$ch = curl_init();    // initialize curl handle
     curl_setopt($ch, CURLOPT_URL, $url); // set url to post to
     curl_setopt($ch, CURLOPT_FAILONERROR, 1);

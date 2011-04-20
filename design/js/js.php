@@ -12,7 +12,7 @@
  * @uses		class.JSMin.php (../../code/classes/class.JSMin.php)
  */
 header('Content-type: text/js');
-require_once '../../code/classes/class.JSMin.php';
+require_once '../../engine/vendors/JSMin/class.JSMin.php';
 /**
  * Compresses all files by removing all comments, and removing tabs, new lines, etc
  *
