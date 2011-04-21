@@ -96,8 +96,9 @@ class Routing
 	    $pages_code_directory = $this->configureInstance->getDirectory('pages_code');
 	    $pages_directory = $this->configureInstance->getDirectory('pages');
 	    if(!empty($this->currentPage['page'])){
-            $this->currentPage['page_file'] = $pages_directory . '/' . $this->currentPage['page'] . '.html';
-            $this->currentPage['php_file'] = $pages_code_directory . '/' . $this->currentPage['page'] . '.php';
+	        $this->currentPage['file_name'] = $this->getFileName();
+            $this->currentPage['page_file'] = $pages_directory . '/' . $this->currentPage['file_name'] . '.html';
+            $this->currentPage['php_file'] = $pages_code_directory . '/' . $this->currentPage['file_name'] . '.php';
     	}else{
             $this->currentPage['page_file'] = $pages_directory;
             $this->currentPage['php_file'] = $pages_code_directory;
@@ -149,6 +150,21 @@ class Routing
      	}
     	self::trace('<em>getRequestedPage() Returning</em> - '.$requestedPage, __LINE__);	
 	    return $requestedPage;
+	}
+	
+	/**
+	 * If the page is marked as a landing page then it looks for index files else it matches the page name.
+	 *
+	 * @return string
+	 * @access private
+	 * @author Johnathan Pulos
+	 */
+	private function getFileName() {
+	    if ($this->SPYCSettings[$this->currentPage['page']]['landing_page'] === true){
+    		return 'index';
+    	}else {
+    	    return $this->currentPage['page'];
+    	}
 	}
 	
 	/**
