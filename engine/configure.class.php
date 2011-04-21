@@ -179,9 +179,6 @@ class Configure
     			$current_page = substr($current_page, 0, strrpos($current_page, '/index')); 
     		}
     	}
-    	print_r($this->current_page);
-    	echo $current_page;
-	    exit;
         $this->setSetting('page_settings', $this->SPYCSettings[$this->current_page['page']]);
     	self::trace('Ending initPageSettings()', __LINE__);
 	}

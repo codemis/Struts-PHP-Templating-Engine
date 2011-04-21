@@ -33,6 +33,17 @@ global:
     landing_page: false
     cache: false
 # /Required Parameters
+'index':
+    title: 'Page Title'
+    description: 'Page Description'
+    keywords: 'Page keywords'
+    template: ''
+    javascript: ''
+    css: ''
+    landing_page: true
+    cache: true
+    changefreq: 'daily'
+    priority: '2'
 'example':
     title: 'Page Title'
     description: 'Page Description'

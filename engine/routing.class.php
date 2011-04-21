@@ -132,14 +132,6 @@ class Routing
     		}
     	}
     	/**
-    	 * Handle 404 errors
-    	 *
-    	 * @author Technoguru Aka. Johnathan Pulos
-    	 */
-     	if (isset($requestedPage) && !array_key_exists($requestedPage, $this->SPYCSettings)) {
-     	    $requestedPage = '404';
-     	}
-        /**
          * If an extension exists on $page_url then remove it
          *
          * @author Technoguru Aka. Johnathan Pulos
@@ -147,6 +139,14 @@ class Routing
     	if (strpos($requestedPage, '.') != false) {
     	    $requestedPage = substr($requestedPage, 0, strrpos($requestedPage, '.')); 
     	}
+    	/**
+    	 * Handle 404 errors
+    	 *
+    	 * @author Technoguru Aka. Johnathan Pulos
+    	 */
+     	if (isset($requestedPage) && !array_key_exists($requestedPage, $this->SPYCSettings)) {
+     	    $requestedPage = '404';
+     	}
     	self::trace('<em>getRequestedPage() Returning</em> - '.$requestedPage, __LINE__);	
 	    return $requestedPage;
 	}

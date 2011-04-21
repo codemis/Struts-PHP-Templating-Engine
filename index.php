@@ -64,7 +64,8 @@
     $strutDirectories['js'] = '/design/js';
     $strutDirectories['elements'] = 'design/elements';
 	$newStrut->setSetting('directories', $strutDirectories);
-	$newStrut->handleRequest($_GET['url']);
+	$page_url = (isset($_GET['url'])) ? trim($_GET['url']) : 'index.html';
+	$newStrut->handleRequest($page_url);
 	$newStrut->readSetting('cache_time');
 	trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
 	$newStrut->jsFormat = "<script src=\"%s\"></script>\r\n";

@@ -114,39 +114,7 @@ class Logging
              */
             return;
         }
-        $debug_level = $this->configureInstance->getSetting('debug_level');
-        switch ($debug_level) {
-            case 3:
-                $this->displayError($errno, $errstr, $errfile, $errline);
-                if($errno == E_USER_ERROR) {
-                    /**
-                     * Fatal Error
-                     * 
-                     *
-                     * @author Technoguru Aka. Johnathan Pulos
-                     */
-                    exit(1);
-                }
-                break;
-            case 2:
-                $this->displayError($errno, $errstr, $errfile, $errline);
-                $this->writeStackTraceToLog($errno, $errstr, $errfile, $errline);
-                if($errno == E_USER_ERROR) {
-                    /**
-                     * Fatal Error
-                     * 
-                     *
-                     * @author Technoguru Aka. Johnathan Pulos
-                     */
-                    exit(1);
-                }
-                break;
-            case 1:
-                $this->writeStackTraceToLog($errno, $errstr, $errfile, $errline);
-                break;
-            default:
-                break;
-        }
+        $this->displayError($errno, $errstr, $errfile, $errline);
 	    return true;
 	}
 	
@@ -188,60 +156,42 @@ class Logging
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	private function displayError($errno, $errstr, $errfile, $errline) {
-	    switch ($errno) {
-            case E_USER_ERROR:
-                echo "<strong>PHP error (Line #$errline code: #$errno)</strong>: $errstr<br>";
-                echo "<h3>STRUTS PHP Stack Trace</h3>";
-                $stacktrace = $this->stacktrace;
-                foreach($stacktrace as $trace) {
-        	        echo $trace . '<br>';
-        	    }
-                break;
-            case E_USER_WARNING:
-                echo "<strong>PHP Warning (Line #$errline code: #$errno)</strong>: $errstr<br>";
-                break;
-            case E_USER_NOTICE:
-                echo "<strong>PHP Notice (Line #$errline code: #$errno)</strong>: $errstr<br>";
-                break;
-            default:
-                echo "<strong>Unknown error type (Line #$errline code: #$errno)</strong>: $errstr<br>";
-                break;
-        }
-	}
-	
-	/**
-	 * Write the errors to the log file
-	 *
-	 * @param string $errno PHP error number
-	 * @param string $errstr PHP error string
-	 * @param string $errfile PHP error file name
-	 * @param string $errline PHP error line number
-	 * @return void
-	 * @access private
-	 * @author Technoguru Aka. Johnathan Pulos
-	 */
-	private function writeStackTraceToLog($errno, $errstr, $errfile, $errline) {
 	    $message = "";
 	    switch ($errno) {
             case E_USER_ERROR:
-                $message = "PHP error (Line #$errline code: #$errno): $errstr\n";
-                $message .= "STRUTS PHP Stack Trace\n\n";
+                $message = "<strong>PHP error (Line #$errline code: #$errno)</strong>: $errstr<br>";
+                $message .= "<h3>STRUTS PHP Stack Trace</h3>";
                 $stacktrace = $this->stacktrace;
                 foreach($stacktrace as $trace) {
-        	        $message .= strip_tags(str_replace("<br>", "\n", $trace)) . "\n";
+        	        $message .= $trace . '<br>';
         	    }
                 break;
             case E_USER_WARNING:
-                $message .= "PHP Warning (Line #$errline code: #$errno): $errstr\n";
+                $message .= "<strong>PHP Warning (Line #$errline code: #$errno line: #$errline)</strong>: $errstr<br>";
                 break;
             case E_USER_NOTICE:
-                $message .= "PHP Notice (Line #$errline code: #$errno): $errstr\n";
+                $message .= "<strong>PHP Notice (Line #$errline code: #$errno line: #$errline)</strong>: $errstr<br>";
                 break;
             default:
-                $message .= "Unknown error type (Line #$errline code: #$errno): $errstr\n";
+                $message .= "<strong>Unknown error type ($errfile code: #$errno line: #$errline)</strong>: $errstr<br>";
                 break;
         }
-        $this->writeToLog($message);
+        $debug_level = $this->configureInstance->getSetting('debug_level');
+        if($debug_level == 2 || $debug_level == 1) {
+            $this->writeToLog(strip_tags(str_replace("<br>", "\n", $message)));
+        }
+        if($debug_level == 2 || $debug_level == 3) {
+            echo $message;
+            if($errno == E_USER_ERROR) {
+                /**
+                 * Fatal Error
+                 * 
+                 *
+                 * @author Technoguru Aka. Johnathan Pulos
+                 */
+                exit(1);
+            }
+        }
 	}
 	
 }
