@@ -32,21 +32,21 @@ class Routing
 	 * The singleton instance of the routing class
 	 *
 	 * @var Object
-	 * @access private
+	 * @access public
 	 */
 	private static $routingInstance;
 	/**
 	 * The singleton instance of the configure class
 	 *
 	 * @var Object
-	 * @access private
+	 * @access public
 	 */
 	public static $configureInstance;
 	/**
 	 * The singleton instance of the logging class
 	 *
 	 * @var Object
-	 * @access private
+	 * @access public
 	 */
 	public static $loggingInstance;
 	

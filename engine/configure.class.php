@@ -189,7 +189,6 @@ class Configure
     	}else {
     	    $page_settings = $this->SPYCSettings['global'];
     	}
-    	    $this->SPYCSettings['global'];
         $this->setSetting('page_settings', $page_settings);
     	self::trace('Ending initPageSettings()', __LINE__);
 	}

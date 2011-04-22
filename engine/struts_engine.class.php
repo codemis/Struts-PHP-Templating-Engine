@@ -15,6 +15,7 @@
  require_once('routing.class.php');
  require_once('logging.class.php');
  require_once('caching.class.php');
+ require_once('templating.class.php');
 class strutsEngine
 {
 	/**
@@ -111,6 +112,12 @@ class strutsEngine
 	 * @var Object
 	 */
 	private static $cachingInstance;
+	/**
+	 * The singleton instance of the templating class
+	 *
+	 * @var Object
+	 */
+	private static $templatingInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use strutsEngine::scaffold()
@@ -167,6 +174,14 @@ class strutsEngine
             
             self::trace('Completed initializing Caching Class', __LINE__); 
         }
+        if (!self::$templatingInstance) {
+            self::trace('Started initializing Templating Class', __LINE__);
+             
+            self::$templatingInstance = Templating::init();
+            self::$templatingInstance->loggingInstance = self::$loggingInstance;
+            
+            self::trace('Completed initializing Templating Class', __LINE__); 
+        }
         if (!self::$configureInstance) {
             self::trace('Started initializing Configure Class', __LINE__);
              
@@ -176,6 +191,7 @@ class strutsEngine
             self::$routingInstance->configureInstance = self::$configureInstance;
             self::$loggingInstance->configureInstance = self::$configureInstance;
             self::$cachingInstance->configureInstance = self::$configureInstance;
+            self::$templatingInstance->configureInstance = self::$configureInstance;
             
             self::trace('Completed initializing Configure Class', __LINE__); 
         }
@@ -277,7 +293,8 @@ class strutsEngine
 	     *
 	     * @author Johnathan Pulos
 	     */
-	    self::$cachingInstance->handleRequest();
+	    self::$cachingInstance->processRequest();
+	    self::$templatingInstance->processRequest();
      	self::trace('Completing processRequest()', __LINE__);
 	}
 	
@@ -290,13 +307,14 @@ class strutsEngine
 	 */
 	public function renderRequest() {
 	    self::trace('Starting renderRequest()', __LINE__);
+	    self::$templatingInstance->completeRequest();
 	     /**
 	      * Do any final clean up in the caching engine
 	      *
 	      * @author Johnathan Pulos
 	      */
-	     self::$cachingInstance->closeRequest();
-	     self::trace('Completing renderRequest()', __LINE__);
+	    self::$cachingInstance->completeRequest();
+	    self::trace('Completing renderRequest()', __LINE__);
 	}
 	
 	/**

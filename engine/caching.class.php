@@ -92,8 +92,8 @@ class Caching
 	 * @access public
 	 * @author Johnathan Pulos
 	 */
-	public function handleRequest() {
-        self::trace('Starting handleRequest()', __LINE__);
+	public function processRequest() {
+        self::trace('Starting processRequest()', __LINE__);
         $this->currentPage = $this->configureInstance->getSetting('current_page');
         $this->globalSettings = $this->configureInstance->getSetting('global_settings');
         $debug_level = $this->configureInstance->getSetting('debug_level');
@@ -127,7 +127,7 @@ class Caching
 	 * @access public
 	 * @author Johnathan Pulos
 	 */
-	public function closeRequest() {
+	public function completeRequest() {
 	    if($this->cachingFile === true) {
 	        $this->finalizeCaching();
 	    }
