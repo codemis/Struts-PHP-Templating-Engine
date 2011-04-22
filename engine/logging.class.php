@@ -128,13 +128,14 @@ class Logging
 	 */
     private function writeToLog($message){
         $log_file = APP_PATH . '/engine/' . $this->log_file;
+        $this->cleanUpLog($log_file);
         /**
          * open log file for writing only; place the file pointer at the end of the file 
          * if the file does not exist, attempt to create it
          *
          * @author Technoguru Aka. Johnathan Pulos
          */
-        $fp = fopen($log_file, 'w') or exit("Unable to open the log file @ ".$log_file);
+        $fp = fopen($log_file, 'a+') or exit("Unable to open the log file @ ".$log_file);
         /**
          * Define the script name
          *
@@ -142,6 +143,30 @@ class Logging
          */
         fwrite($fp, "$message\n");
         fclose($fp);
+    }
+    
+    /**
+     * Checks if the log file has been retain tool long based on retain_logs setting, and truncates it
+     *
+     * @param string $logFile 
+     * @return void
+     * @access public
+     * @author Johnathan Pulos
+     */
+    private function cleanUpLog($logFile) {
+        if(file_exists($logFile)) {
+            $retainLogTime = $this->configureInstance->getSetting('retain_logs');
+            $logCreated = @filemtime($logFile);
+            if(time() > $logCreated+$retainLogTime) {
+                /**
+                 * truncate the log file
+                 *
+                 * @author Johnathan Pulos
+                 */
+                $fh = fopen($logFile, 'w');
+                fclose($fh);
+            } 
+        }
     }
 	
 	/**
@@ -177,10 +202,10 @@ class Logging
                 break;
         }
         $debug_level = $this->configureInstance->getSetting('debug_level');
-        if($debug_level == 2 || $debug_level == 1) {
+        if($debug_level == 3 || $debug_level == 2 || $debug_level == 1) {
             $this->writeToLog(strip_tags(str_replace("<br>", "\n", $message)));
         }
-        if($debug_level == 2 || $debug_level == 3) {
+        if($debug_level == 4 || $debug_level == 3) {
             echo $message;
             if($errno == E_USER_ERROR) {
                 /**

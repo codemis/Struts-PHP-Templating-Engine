@@ -96,6 +96,7 @@ class Caching
         self::trace('Starting handleRequest()', __LINE__);
         $this->currentPage = $this->configureInstance->getSetting('current_page');
         $this->globalSettings = $this->configureInstance->getSetting('global_settings');
+        $debug_level = $this->configureInstance->getSetting('debug_level');
         if(empty($this->currentPage)) {
             trigger_error('You must first set the Configure class var current_page before calling this method.', E_USER_ERROR);
         }
@@ -106,7 +107,7 @@ class Caching
             $this->clearCache();
             trigger_error('The cache has been cleared.', E_USER_ERROR);
         }
-        if($this->globalSettings['enable_caching'] === true) {
+        if($this->globalSettings['enable_caching'] === true && $debug_level <= 1) {
             $pageSettings = $this->configureInstance->getSetting('page_settings');
             if($pageSettings['cache'] === true) {
                 self::trace('Caching is on!', __LINE__);

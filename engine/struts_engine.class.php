@@ -208,11 +208,26 @@ class strutsEngine
 	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	public function readSetting($key) {
-	    self::trace('readSetting("'.$key.'")', __LINE__);
+	public function getSetting($key) {
+	    self::trace('getSetting("'.$key.'")', __LINE__);
 	    $setting = self::$configureInstance->getSetting($key);
-	    self::trace('<em>readSetting() Returning</em> - '.$setting, __LINE__);
+	    self::trace('<em>getSetting() Returning</em> - '.$setting, __LINE__);
 	    return $setting;
+	}
+	
+	/**
+	 * Get the configuration directory
+	 *
+	 * @param string $dir The directory your looking for
+	 * @return string
+	 * @access public
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function getDirectory($dir) {
+	    self::trace('getDirectory("'.$dir.'")', __LINE__);
+	    $directory = self::$configureInstance->getDirectory($dir);
+	    self::trace('<em>getDirectory() Returning</em> - '.$directory, __LINE__);
+	    return $directory;
 	}
 	
 	/**
@@ -234,8 +249,8 @@ class strutsEngine
 	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	public function handleRequest($requestedUrl) {
-	    self::trace('handleRequest("'.$requestedUrl.'")', __LINE__);
+	public function processRequest($requestedUrl) {
+	    self::trace('Starting processRequest("'.$requestedUrl.'")', __LINE__);
 	    /**
 	     * Run SPYC to get the current settings file
 	     *
@@ -262,14 +277,26 @@ class strutsEngine
 	     *
 	     * @author Johnathan Pulos
 	     */
-	     self::$cachingInstance->handleRequest();
-	     
+	    self::$cachingInstance->handleRequest();
+     	self::trace('Completing processRequest()', __LINE__);
+	}
+	
+	/**
+	 * Render the requested page.  This should be called last after all modules and pageinfo has been defined.
+	 *
+	 * @return void
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	public function renderRequest() {
+	    self::trace('Starting renderRequest()', __LINE__);
 	     /**
 	      * Do any final clean up in the caching engine
 	      *
 	      * @author Johnathan Pulos
 	      */
 	     self::$cachingInstance->closeRequest();
+	     self::trace('Completing renderRequest()', __LINE__);
 	}
 	
 	/**

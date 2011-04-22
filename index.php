@@ -40,15 +40,17 @@
 	$newStrut->setSetting('default_layout', 'example_test.html');
 	$newStrut->setSetting('settings_file', 'settings/site.yml');
 	$newStrut->setSetting('database_file', 'settings/database.inc.php');
-	$newStrut->setSetting('cache_time', 600);
+	$newStrut->setSetting('cache_time', 600); //Seconds
 	$newStrut->setSetting('cache_ext', 'cache');
+	$newStrut->setSetting('retain_logs', 600); //Seconds
 	/**
 	 * Set the level of debugging.
 	 *
-	 * 3 - Display full stack trace when an error occurs, but do not write the trace to the log files (development) 
-	 * 2 - Display full stack trace when an error occurs, and write the trace to the log files (development)
-	 * 1 - Write stack trace into log file, but display error page
-	 * 0 - do nothing
+	 * 4 - Display full stack trace when an error occurs, but do not write the trace to the log files (development), Caching disabled 
+	 * 3 - Display full stack trace when an error occurs, and write the trace to the log files (development), Caching disabled
+ 	 * 2 - Write stack trace into log file (development), Caching Disabled
+	 * 1 - Write stack trace into log file, Caching Enabled
+	 * 0 - do nothing, Caching Enabled
 	 *
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
@@ -65,8 +67,30 @@
     $strutDirectories['elements'] = 'design/elements';
 	$newStrut->setSetting('directories', $strutDirectories);
 	$page_url = (isset($_GET['url'])) ? trim($_GET['url']) : 'index.html';
-	$newStrut->handleRequest($page_url);
-	$newStrut->readSetting('cache_time');
+	$newStrut->processRequest($page_url);
+	$currentPage = $newStrut->getSetting('current_page');
+	/**
+     * If the page requested has a PHP functionality file, then include and run it.
+     *
+     * @author Johnathan Pulos
+     */
+	if(!empty($currentPage)) {
+	    $phpFile = APP_PATH . $currentPage['php_file'];
+    	if(file_exists($phpFile)){
+    	    include($phpFile);
+    	}
+	}
+	 /**
+	  * Declare any modules/page vars to the Struts Templating Engine you need access to on the layout design page 
+	  *
+	  * @author Johnathan Pulos
+	  */
+    $moduleDirectory = APP_PATH . $newStrut->getDirectory('modules_code');
+    if(file_exists($moduleDirectory . '/modules.inc.php')){
+        $module_directory = APP_PATH . $newStrut->getDirectory('modules');
+	    require_once($moduleDirectory . '/modules.inc.php');
+	 }
+	$newStrut->renderRequest();
 	trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
 	
 	
@@ -133,51 +157,6 @@
 	    $page_url = substr($page_url, 0, strrpos($page_url, '.')); 
 	}
 	
-	/**
-	 * If they are requesting to delete all the cache
-	 *
-	 * @author Technoguru Aka. Johnathan Pulos
-	 */
-	if($page_url == 'clear_cache') {
-		require_once('code/functions/recursive_directory_scan.php');
-		/**
-		 * remove CSS temp files
-		 * 
-		 *
-		 * @author Technoguru Aka. Johnathan Pulos
-		 */
-		$directoryResults = scan_directory_recursively($settings['global']['css_compress_directory']);
-		foreach($directoryResults as $cssFile) {
-			if($cssFile['extension'] == 'css'){
-				unlink($cssFile['path']);
-			}
-		}
-		/**
-		 * remove Javascript temp files
-		 *
-		 * @author Technoguru Aka. Johnathan Pulos
-		 */
-		$directoryResults = scan_directory_recursively($settings['global']['js_compress_directory']);
-		foreach($directoryResults as $jsFile) {
-			if($jsFile['extension'] == 'js'){
-				unlink($jsFile['path']);
-			}
-		}
-		/**
-		 * Remove all temp files
-		 *
-		 * @author Technoguru Aka. Johnathan Pulos
-		 */
-		$directoryResults = scan_directory_recursively('tmp');
-		foreach($directoryResults as $tempFile) {
-			if($tempFile['extension'] == 'cache'){
-				unlink($tempFile['path']);
-			}
-		}
-		echo 'All cache has been cleared';
-		exit;
-	}
-	
 	/* 404 page */
 	$page_url = (isset($_GET['url']) && !array_key_exists($page_url, $settings)) ? '404' : $page_url;
 
@@ -210,35 +189,6 @@
 	if(empty($page_url) || $page_specific_settings['landing_page'] === true){
 		$page_path = $page_path . '/index';		
 		$pages_code_path = $pages_code_path . '/index';
-	}
-	
-	/**
-	 * If $page_specific_settings['cache'] is true and $settings['global']['enable_caching'] is true, then start page caching.
-	 */
-	if(($page_specific_settings['cache'] === true) && ($settings['global']['enable_caching'] === true)){
-		
-		/**
-		 * @var	string	$cachefile the cache file for the requested page (md5 encrypted)
-		 */
-		$cachefile = $cache_directory . md5($page_path . '/index.html') . '.' . $cache_ext;
-		/**
-		 * @var	$cachefile_created	The date the file was cached
-		 */ 
-		$cachefile_created = (@file_exists($cachefile)) ? @filemtime($cachefile) : 0; 
-		@clearstatcache(); 
-		
-		/**
-		 * If the $cachefile_created is less then the set $cache_time then load the file directly and exit() the code
-		 */
-		if (time() - $cache_time < $cachefile_created) {  
-			@readfile($cachefile);  
-			exit(); 
-		} 
-		
-		/**
-		 * start the page caching engine
-		 */
-		ob_start();
 	}
 	
 	/**
@@ -372,13 +322,14 @@
 		$newStrut->setPageElement($page_path . '.html');
 	}
 		
-	/**
-	 * Declare any modules to the Struts Templating Engine you need access to on the layout design page
-	 * Example:: this one creates a ##site_nav## that holds the site navigation in the variable
-	 */
-  if(file_exists($module_code_directory . '/modules.inc.php')){
-	  require_once($module_code_directory . '/modules.inc.php');
-	}
+	 /**
+	  * Declare any modules to the Struts Templating Engine you need access to on the layout design page 
+	  *
+	  * @author Johnathan Pulos
+	  */
+     if(file_exists($module_code_directory . '/modules.inc.php')){
+	     require_once($module_code_directory . '/modules.inc.php');
+	 }
 	
 	/**
 	 * Tell the Struts Templating Engine the layout file to use.
@@ -391,18 +342,4 @@
 	 * Tell Struts Templating Engine to render the layout.
 	 */
 	print $newStrut->renderLayout();
-	/**
-	 * If $page_specific_settings['cache'] is true, and $settings['global']['enable_caching'] is true
-	 * then finish page caching, and dump the cache into the file
-	 */
-	if(($page_specific_settings['cache'] === true) && ($settings['global']['enable_caching'] === true)){
-		
-		/**
-		 * @var	file $fp holds the file that will be cached			
-		 */
-		$fp = @fopen($cachefile, 'w');
-		@fwrite($fp, ob_get_contents()); 
-		@fclose($fp); 
-		ob_end_flush(); 
-	}
 ?>
