@@ -14,6 +14,7 @@
  require_once('configure.class.php');
  require_once('routing.class.php');
  require_once('logging.class.php');
+ require_once('caching.class.php');
 class strutsEngine
 {
 	/**
@@ -104,6 +105,12 @@ class strutsEngine
 	 * @var Object
 	 */
 	private static $loggingInstance;
+	/**
+	 * The singleton instance of the caching class
+	 *
+	 * @var Object
+	 */
+	private static $cachingInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use strutsEngine::scaffold()
@@ -152,6 +159,14 @@ class strutsEngine
             
             self::trace('Completed initializing Routing Class', __LINE__); 
         } 
+        if (!self::$cachingInstance) {
+            self::trace('Started initializing Caching Class', __LINE__);
+             
+            self::$cachingInstance = Caching::init();
+            self::$cachingInstance->loggingInstance = self::$loggingInstance;
+            
+            self::trace('Completed initializing Caching Class', __LINE__); 
+        }
         if (!self::$configureInstance) {
             self::trace('Started initializing Configure Class', __LINE__);
              
@@ -160,6 +175,7 @@ class strutsEngine
             
             self::$routingInstance->configureInstance = self::$configureInstance;
             self::$loggingInstance->configureInstance = self::$configureInstance;
+            self::$cachingInstance->configureInstance = self::$configureInstance;
             
             self::trace('Completed initializing Configure Class', __LINE__); 
         }
@@ -220,12 +236,33 @@ class strutsEngine
 	 */
 	public function handleRequest($requestedUrl) {
 	    self::trace('handleRequest("'.$requestedUrl.'")', __LINE__);
+	    /**
+	     * Run SPYC to get the current settings file
+	     *
+	     * @author Johnathan Pulos
+	     */
 	    self::$configureInstance->setSPYCSettings();
+	    /**
+	     * Start determining the current page by passing the request to the Routing
+	     *
+	     * @author Johnathan Pulos
+	     */
 	    self::$routingInstance->SPYCSettings = self::$configureInstance->SPYCSettings;
 	    $currentPage = self::$routingInstance->getCurrentPage($requestedUrl);
 	    $this->setSetting('current_page', $currentPage);
+	     /**
+	      * Get the specific settings by setting them in the Configure class
+	      *
+	      * @author Johnathan Pulos
+	      */
 	    self::$configureInstance->initGlobalSettings();
 	    self::$configureInstance->initPageSettings();
+	    /**
+	     * Check caching,  if on then deliver necessary file, or start up the caching
+	     *
+	     * @author Johnathan Pulos
+	     */
+	     self::$cachingInstance->handleRequest();
 	}
 	
 	/**

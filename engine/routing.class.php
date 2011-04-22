@@ -23,6 +23,12 @@ class Routing
      */
     private $currentPage = array();
     /**
+     * An array of custom urls that are used specifically in the code, but do not have a setting in the YML.  It will bypass settings check for these urls.
+     *
+     * @var array
+     */
+    private $customByPassUrls = array('clear_cache');
+    /**
 	 * The singleton instance of the routing class
 	 *
 	 * @var Object
@@ -95,7 +101,7 @@ class Routing
 	    $this->currentPage['page'] = $this->getRequestedPage();
 	    $pages_code_directory = $this->configureInstance->getDirectory('pages_code');
 	    $pages_directory = $this->configureInstance->getDirectory('pages');
-	    if(!empty($this->currentPage['page'])){
+	    if(!empty($this->currentPage['page']) && (!in_array($this->currentPage['page'], $this->customByPassUrls))){
 	        $this->currentPage['file_name'] = $this->getFileName();
             $this->currentPage['page_file'] = $pages_directory . '/' . $this->currentPage['file_name'] . '.html';
             $this->currentPage['php_file'] = $pages_code_directory . '/' . $this->currentPage['file_name'] . '.php';
@@ -145,7 +151,7 @@ class Routing
     	 *
     	 * @author Technoguru Aka. Johnathan Pulos
     	 */
-     	if (isset($requestedPage) && !array_key_exists($requestedPage, $this->SPYCSettings)) {
+     	if (isset($requestedPage) && !array_key_exists($requestedPage, $this->SPYCSettings) && (!in_array($requestedPage, $this->customByPassUrls))) {
      	    $requestedPage = '404';
      	}
     	self::trace('<em>getRequestedPage() Returning</em> - '.$requestedPage, __LINE__);	

@@ -179,7 +179,18 @@ class Configure
     			$current_page = substr($current_page, 0, strrpos($current_page, '/index')); 
     		}
     	}
-        $this->setSetting('page_settings', $this->SPYCSettings[$this->current_page['page']]);
+    	/**
+    	 * If the page does not have a setting, then use the global settings
+    	 *
+    	 * @author Johnathan Pulos
+    	 */
+    	if(array_key_exists($this->current_page['page'], $this->SPYCSettings)){
+    	    $page_settings = $this->SPYCSettings[$this->current_page['page']];
+    	}else {
+    	    $page_settings = $this->SPYCSettings['global'];
+    	}
+    	    $this->SPYCSettings['global'];
+        $this->setSetting('page_settings', $page_settings);
     	self::trace('Ending initPageSettings()', __LINE__);
 	}
 	
