@@ -318,19 +318,18 @@ class strutsEngine
 	}
 	
 	/**
-	 * Sets an individual variable for the layout file
+	 * Set a template tag for any view
 	 *
-	 * @var	string	$tag	reference of the variable (##variable##)
-	 * @var	string	$value	the value you want to set the variable to	
-	 * @return Boolean
-	 * 
-	 * @access	public
-	 * @author Technoguru Aka. Johnathan Pulos
-	 **/
-	public function setLayoutVar($tag, $value)
-	{
-		$this->layoutVars = array_merge($this->layoutVars,array($tag => $value));
-		return true;
+	 * @param string $tag reference for this specific variable
+	 * @param string $value value for this variable 
+	 * @return void
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	public function setTemplateTag($tag, $value) {
+	    self::trace('Starting setTemplateTag("'.$tag.'", "'.htmlspecialchars($value).'")', __LINE__);
+	    self::$templatingInstance->setATemplateTag($tag, $value);
+	    self::trace('Completing setTemplateTag()', __LINE__);
 	}
 	
 	/**
@@ -582,25 +581,6 @@ class strutsEngine
 	}
 	
 	/**
-	 * Set an individual variable for the page design file
-	 * 
-	 * All variables can be displayed by adding ##tag## in the page design file.
-	 *
-	 * @var string $tag reference for this specific variable
-	 * @var string $value value for this variable
-	 * 
-	 * @return Boolean
-	 * 
-	 * @access	public
-	 * @author Technoguru Aka. Johnathan Pulos
-	 **/
-	public function setPageVar($tag, $value)
-	{
-		$this->pageVars = array_merge($this->pageVars,array($tag => $value));
-		return true;
-	}
-	
-	/**
 	 * Sets multiple variables for a page design file based on a supplied array formated like array($tag => $value)
 	 *
 	 * @var	array 	$page_vars	An array of page variables
@@ -768,6 +748,43 @@ class strutsEngine
 	 */
 	private function trace($message, $line = '') {
 	    self::$loggingInstance->logTrace('<strong>strutsEngine (line# '.$line.')</strong>: '.$message);
+	}
+	
+	/**
+	 * Deprecated Method
+	 *
+	 * @var	string	$tag	reference of the variable (##variable##)
+	 * @var	string	$value	the value you want to set the variable to	
+	 * @return Boolean
+	 * 
+	 * @access	public
+	 * @deprecated
+	 * @author Technoguru Aka. Johnathan Pulos
+	 **/
+	public function setLayoutVar($tag, $value){
+		trigger_error('<strong>Deprecated Method strutsEngine::setLayoutVar($tag, $value)</strong> please use strutsEngine::setTemplateTag($tag, $value)', E_USER_WARNING);
+		$this->setTemplateTag($tag, $value);
+		return true;
+	}
+	
+	/**
+	 * Deprecated Method
+	 * 
+	 * All variables can be displayed by adding ##tag## in the page design file.
+	 *
+	 * @var string $tag reference for this specific variable
+	 * @var string $value value for this variable
+	 * 
+	 * @return Boolean
+	 * 
+	 * @access	public
+	 * @deprecated
+	 * @author Technoguru Aka. Johnathan Pulos
+	 **/
+	public function setPageVar($tag, $value){
+    	trigger_error('<strong>Deprecated Method strutsEngine::setLayoutVar($tag, $value)</strong> please use strutsEngine::setTemplateTag($tag, $value)', E_USER_WARNING);
+		$this->setTemplateTag($tag, $value);
+		return true;
 	}
 	
 }// END class 

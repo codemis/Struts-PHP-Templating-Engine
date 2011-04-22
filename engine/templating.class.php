@@ -107,6 +107,23 @@ class Templating
 	    
     	self::trace('Completing completeRequest()', __LINE__);
 	}
+	/**
+	 * Sets a template tag for the view
+	 *
+	 * @param string $key the tag name
+	 * @param string $val the value of that tag
+	 * @return void
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	public function setATemplateTag($key, $val) {
+	    self::trace('Starting setATemplateTag("'.$key.'", "'.htmlspecialchars($val).'")', __LINE__);
+	    if(in_array($key, $this->restrictedTags)) {
+	        trigger_error('Restricted: You are not allowed to use <strong>'.$key.'</strong>.  These tags are not allowed '.implode(', ',$this->restrictedTags), E_USER_ERROR);
+	    }else {
+	        $this->templateTags[$key] = $val;   
+	    }
+	}
 	
 	/**
 	 * Merge the current templateTags with an array of vars.  mergeWithArray takes precedence

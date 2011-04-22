@@ -1,3 +1,3 @@
 <?php
-$newStrut->setPageVar('my_title', 'Example Page');
+$newStrut->setTemplateTag('my_title', 'Example Page');
 ?>

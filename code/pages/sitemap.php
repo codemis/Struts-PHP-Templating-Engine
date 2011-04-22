@@ -42,5 +42,5 @@ foreach($settings as $key => $site_page){
 /**
  * Set the ##strutContent## for the layout file using the Struts templating engine.
  */
-$newStrut->setLayoutVar("strutContent", $sitemap_content);
+$newStrut->setTemplateTag("strutContent", $sitemap_content);
 ?>

@@ -192,7 +192,7 @@ class Logging
 	    $message = "";
 	    switch ($errno) {
             case E_USER_ERROR:
-                $message = "<strong>PHP error (Line #$errline code: #$errno)</strong>: $errstr<br>";
+                $message = "<strong>PHP error (In $errfile Line #$errline code: #$errno)</strong>: $errstr<br>";
                 $message .= "<h3>STRUTS PHP Stack Trace</h3>";
                 $stacktrace = $this->stacktrace;
                 foreach($stacktrace as $trace) {
@@ -206,13 +206,13 @@ class Logging
         	    }
                 break;
             case E_USER_WARNING:
-                $message .= "<strong>PHP Warning (Line #$errline code: #$errno line: #$errline)</strong>: $errstr<br>";
+                $message .= "<strong>PHP Warning (In $errfile Line #$errline code: #$errno line: #$errline)</strong>: $errstr<br>";
                 break;
             case E_USER_NOTICE:
-                $message .= "<strong>PHP Notice (Line #$errline code: #$errno line: #$errline)</strong>: $errstr<br>";
+                $message .= "<strong>PHP Notice (In $errfile Line #$errline code: #$errno line: #$errline)</strong>: $errstr<br>";
                 break;
             default:
-                $message .= "<strong>Unknown error type ($errfile code: #$errno line: #$errline)</strong>: $errstr<br>";
+                $message .= "<strong>Unknown error type (In $errfile $errfile code: #$errno line: #$errline)</strong>: $errstr<br>";
                 break;
         }
         $debug_level = $this->configureInstance->getSetting('debug_level');
