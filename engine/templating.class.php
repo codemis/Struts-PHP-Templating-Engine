@@ -126,6 +126,20 @@ class Templating
 	}
 	
 	/**
+	 * Sets a template tag for the view from an array.  This is a wrapper method for mergeWithTemplateTags()
+	 *
+	 * @param array $arrayOfTags an array of tags with key value
+	 * @return void
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	public function setTemplateTagsWithArray($arrayOfTags) {
+	    self::trace('Starting setATemplateTag("'.var_export($arrayOfTags,true).'")', __LINE__);
+        $this->mergeWithTemplateTags($arrayOfTags);
+        self::trace('Completing setATemplateTag()', __LINE__);
+	}
+	
+	/**
 	 * Merge the current templateTags with an array of vars.  mergeWithArray takes precedence
 	 *
 	 * @param array $mergeWithArray an array to merge with

@@ -333,23 +333,24 @@ class strutsEngine
 	}
 	
 	/**
-	 * Sets multiple variables from an array for the layout file
+	 * Sets multiple template tags based on a supplied array formated like array($tag => $value)
 	 *
-	 * @var	array 	$layout_vars	an array of variables set up like array($tag => $value)	
-	 * @var	string	$prefix			prefix to append to all references of the variable (Helps to protect from overwriting other variables)
-	 * @return Boolean
-	 * 
-	 * @access	public
-	 * @author Technoguru Aka. Johnathan Pulos
-	 **/
-	public function setLayoutVarFromArray($layout_vars, $prefix = '')
-	{
-		foreach($layout_vars as $key => $val)
+	 * @param string $arrayOfTags 
+	 * @param string $prefix 
+	 * @return void
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	public function setTemplateTagsWithArray($arrayOfTags, $prefix = '') {
+	    self::trace('Starting setTemplateTagsWithArray("'.var_export($arrayOfTags,true).'", "'.htmlspecialchars($prefix).'")', __LINE__);
+	    $tags = array();
+	    foreach($arrayOfTags as $key => $val)
 		{
 			$title = $prefix . "" . $key;
-			$this->layoutVars = array_merge($this->layoutVars,array($title => $val));
+			$tags = array_merge($tags,array($title => $val));
 		}
-		return true;
+		self::$templatingInstance->setTemplateTagsWithArray($tags);
+		self::trace('Completing setTemplateTagsWithArray()', __LINE__);
 	}
 	
 	/**
@@ -581,27 +582,6 @@ class strutsEngine
 	}
 	
 	/**
-	 * Sets multiple variables for a page design file based on a supplied array formated like array($tag => $value)
-	 *
-	 * @var	array 	$page_vars	An array of page variables
-	 * @var	string	$prefix		prefix to append to all references of the variable (Helps to protect from overwriting other variables)
-	 * 
-	 * @return Boolean
-	 * 
-	 * @access	public
-	 * @author Technoguru Aka. Johnathan Pulos
-	 **/
-	public function setPageVarFromArray($page_vars, $prefix)
-	{
-		foreach($page_vars as $key => $val)
-		{
-			$title = $prefix . "" . $key;
-			$this->pageVars = array_merge($this->pageVars,array($title => $val));
-		}
-		return true;
-	}
-	
-	/**
 	 * A debug function to print out the current set page variables
 	 * 
 	 * This function exits code, and displays all the current page specific variables set up to where this function is called.
@@ -784,6 +764,41 @@ class strutsEngine
 	public function setPageVar($tag, $value){
     	trigger_error('<strong>Deprecated Method strutsEngine::setLayoutVar($tag, $value)</strong> please use strutsEngine::setTemplateTag($tag, $value)', E_USER_WARNING);
 		$this->setTemplateTag($tag, $value);
+		return true;
+	}
+	
+	/**
+	 * Deprecated
+	 *
+	 * @var	array 	$layout_vars	an array of variables set up like array($tag => $value)	
+	 * @var	string	$prefix			prefix to append to all references of the variable (Helps to protect from overwriting other variables)
+	 * @return Boolean
+	 * 
+	 * @access	public
+	 * @deprecated
+	 * @author Technoguru Aka. Johnathan Pulos
+	 **/
+	public function setLayoutVarFromArray($layout_vars, $prefix = ''){
+        trigger_error('<strong>Deprecated Method strutsEngine::setLayoutVarFromArray($layout_vars, $prefix)</strong> please use strutsEngine::setTemplateTagsWithArray($layout_vars, $prefix)', E_USER_WARNING);
+        $this->setTemplateTagsWithArray($layout_vars, $prefix);
+		return true;
+	}
+	
+	/**
+	 * Deprecated
+	 *
+	 * @var	array 	$page_vars	An array of page variables
+	 * @var	string	$prefix		prefix to append to all references of the variable (Helps to protect from overwriting other variables)
+	 * 
+	 * @return Boolean
+	 * 
+	 * @access	public
+	 * @deprecated
+	 * @author Technoguru Aka. Johnathan Pulos
+	 **/
+	public function setPageVarFromArray($page_vars, $prefix = '') {
+        trigger_error('<strong>Deprecated Method strutsEngine::setPageVarFromArray($layout_vars, $prefix)</strong> please use strutsEngine::setTemplateTagsWithArray($layout_vars, $prefix)', E_USER_WARNING);
+        $this->setTemplateTagsWithArray($page_vars, $prefix);
 		return true;
 	}
 	

@@ -201,7 +201,7 @@ class Logging
         	    if (!empty($this->templateTags)) {
         	        $message .= "<h3>STRUTS PHP Available Tags</h3>";
         	        foreach($this->templateTags as $key => $val) {
-            	        $message .= '##' . $key . '## = "' . $val . '"<br>';
+            	        $message .= '##' . $key . '## = "' . htmlspecialchars($val) . '"<br>';
             	    }
         	    }
                 break;
