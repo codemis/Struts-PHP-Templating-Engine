@@ -23,6 +23,13 @@ class Caching
    	 */
     private $globalSettings = array();
     /**
+   	 * The indicator that the page is currently being cached
+   	 *
+   	 * @var array
+   	 * @access private
+   	 */
+    private $cachingFile = false;
+    /**
 	 * The singleton instance of the cache class
 	 *
 	 * @var Object
@@ -113,6 +120,19 @@ class Caching
 	}
 	
 	/**
+	 * Close up any final process for the caching engine
+	 *
+	 * @return void
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	public function closeRequest() {
+	    if($this->cachingFile === true) {
+	        $this->finalizeCaching();
+	    }
+	}
+	
+	/**
 	 * Clear all cache files, including min files so that we can reset everything
 	 *
 	 * @return void
@@ -189,10 +209,28 @@ class Caching
 	private function startCaching() {
 	    self::trace('Starting startCaching()', __LINE__);
 	    ob_start();
+	    $this->cachingFile = true;
 	    self::trace('Completing startCaching()', __LINE__);
 	}
 	
+	/**
+	 * Complete any necessary functionality at the end of the process. Specifically saves the cache file for this page.
+	 *
+	 * @return void
+	 * @access private
+	 * @author Johnathan Pulos
+	 */
 	private function finalizeCaching() {
+	    self::trace('Starting finalizeCaching()', __LINE__);
+	    $cachefile = $this->getCacheFileLocation();
+	    /**
+		 * @var	file $fp holds the file that will be cached			
+		 */
+		$fp = @fopen($cachefile, 'w');
+		@fwrite($fp, ob_get_contents()); 
+		@fclose($fp); 
+		ob_end_flush();
+    	self::trace('Completing finalizeCaching()', __LINE__);
 	}
 	
 	/**

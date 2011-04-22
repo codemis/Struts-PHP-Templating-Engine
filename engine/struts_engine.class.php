@@ -263,6 +263,13 @@ class strutsEngine
 	     * @author Johnathan Pulos
 	     */
 	     self::$cachingInstance->handleRequest();
+	     
+	     /**
+	      * Do any final clean up in the caching engine
+	      *
+	      * @author Johnathan Pulos
+	      */
+	     self::$cachingInstance->closeRequest();
 	}
 	
 	/**
