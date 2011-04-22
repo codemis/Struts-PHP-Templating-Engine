@@ -25,8 +25,16 @@ class Logging
 	 * The singleton instance of the configure class
 	 *
 	 * @var Object
+	 * @access public
 	 */
 	public static $configureInstance;
+	/**
+	 * An array of templateTags set in the templating class, so they can be printed out in the stack trace
+	 *
+	 * @var array
+	 * @access public
+	 */
+	public $templateTags = array();
 	/**
 	 * The location of the log file
 	 *
@@ -189,6 +197,12 @@ class Logging
                 $stacktrace = $this->stacktrace;
                 foreach($stacktrace as $trace) {
         	        $message .= $trace . '<br>';
+        	    }
+        	    if (!empty($this->templateTags)) {
+        	        $message .= "<h3>STRUTS PHP Available Tags</h3>";
+        	        foreach($this->templateTags as $key => $val) {
+            	        $message .= '##' . $key . '## = "' . $val . '"<br>';
+            	    }
         	    }
                 break;
             case E_USER_WARNING:

@@ -41,6 +41,12 @@ class Templating
      * @var array
      */
     private $restrictedTags = array('strutCSS', 'strutJavascript', 'strutContent');
+    /**
+     * An array of tags that are unneccessar and need to be removed
+     *
+     * @author Johnathan Pulos
+     */
+     private $unnecessaryTags = array('css', 'javascript', 'template', 'landing_page', 'css_compress_directory', 'js_compress_directory', 'enable_caching', 'compress_js', 'compress_css', 'cache');
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use Templating::init()
@@ -90,6 +96,36 @@ class Templating
 	}
 	
 	/**
+	 * Close up the request by rendering the final template
+	 *
+	 * @return void
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	public function completeRequest() {
+	    self::trace('Starting completeRequest()', __LINE__);
+	    
+    	self::trace('Completing completeRequest()', __LINE__);
+	}
+	
+	/**
+	 * Merge the current templateTags with an array of vars.  mergeWithArray takes precedence
+	 *
+	 * @param array $mergeWithArray an array to merge with
+	 * @return void
+	 * @access private
+	 * @author Johnathan Pulos
+	 */
+	private function mergeWithTemplateTags($mergeWithArray) {
+	    self::trace('Starting mergeWithTemplateTags("'.var_export($mergeWithArray,true).'")', __LINE__);
+	    $this->findRestricted($mergeWithArray);
+	    $mergeWithArray = $this->removeUnnecessaryTags($mergeWithArray);
+	    $this->templateTags = array_merge($this->templateTags, $mergeWithArray);
+	    $this->loggingInstance->templateTags = $this->templateTags;
+    	self::trace('Completing mergeWithTemplateTags()', __LINE__);
+	}
+	
+	/**
 	 * add the global and page specific settings to the templateTags array.  Page specific vars overwrite global settings.
 	 *
 	 * @return void
@@ -101,8 +137,7 @@ class Templating
 	    $globalSettings = $this->configureInstance->getSetting('global_settings');
     	$pageSettings = $this->configureInstance->getSetting('page_settings');
     	$settingsArray = array_merge($globalSettings, $pageSettings);
-    	$this->findRestricted($settingsArray);
-    	$this->templateTags = $settingsArray;
+    	$this->mergeWithTemplateTags($settingsArray);
     	self::trace('Completing addSettingsToTemplateTags()', __LINE__);
 	}
 	
@@ -124,17 +159,24 @@ class Templating
 	}
 	
 	/**
-	 * Close up the request by rendering the final template
+	 * Removes any unnecessary tags before setting the templatetags class variable
 	 *
-	 * @return void
-	 * @access public
+	 * @param array $searchArray array to search for tags
+	 * @return array
+	 * @access private
 	 * @author Johnathan Pulos
 	 */
-	public function completeRequest() {
-	    self::trace('Starting completeRequest()', __LINE__);
+	private function removeUnnecessaryTags($searchArray){
+	    self::trace('Starting removeUnnecessaryTags("'.var_export($searchArray,true).'")', __LINE__);
+	    foreach($this->unnecessaryTags as $removeTag) {
+	        if (array_key_exists($removeTag, $searchArray)) {
+	            unset($searchArray[$removeTag]);
+	        }
+	    }
 	    
-    	self::trace('Completing completeRequest()', __LINE__);
-	}
+        self::trace('Completing removeUnnecessaryTags()', __LINE__);
+        return $searchArray;
+	}	
 	
 	/**
 	 * convienence method for logging traces
