@@ -90,7 +90,7 @@
 	 * @var	string	$database_file			location of the database settings file
 	 */
 	$layout_template = 'example.html';// NOTE:: Set to your default layout
-	$cache_time = 600;
+	$cache_time = 1;
 	$cache_ext = 'cache';
 	$cache_directory = 'tmp/';
 	$pages_directory = 'design/pages';
@@ -221,7 +221,6 @@
 		 * @var	string	$cachefile the cache file for the requested page (md5 encrypted)
 		 */
 		$cachefile = $cache_directory . md5($page_path . '/index.html') . '.' . $cache_ext;
-		
 		/**
 		 * @var	$cachefile_created	The date the file was cached
 		 */ 

@@ -97,7 +97,18 @@ class Caching
         }
         if($this->currentPage['page'] == 'clear_cache') {
             $this->clearCache();
-            trigger_error('The cache hs been cleared.', E_USER_ERROR);
+            trigger_error('The cache has been cleared.', E_USER_ERROR);
+        }
+        if($this->globalSettings['enable_caching'] === true) {
+            $pageSettings = $this->configureInstance->getSetting('page_settings');
+            if($pageSettings['cache'] === true) {
+                self::trace('Caching is on!', __LINE__);
+                if($this->deliverPage()) {
+                    exit;
+                }else {
+                    $this->startCaching();
+                }
+            }
         }
 	}
 	
@@ -130,6 +141,69 @@ class Caching
 		 */
 		$this->recursivelyRemove(APP_PATH . $this->configureInstance->getDirectory('cache'), $this->configureInstance->getSetting('cache_ext'));
 	    self::trace('Completing clearCache()', __LINE__);
+	}
+	
+	/**
+	 * Checks if the current cache file exists, and compares its creation time with the current time, the either delivers the page, or returns false.
+	 *
+	 * @return boolean
+	 * @access private
+	 * @author Johnathan Pulos
+	 */
+	private function deliverPage() {
+	    self::trace('Starting deliverPage()', __LINE__);
+		$cachefile = $this->getCacheFileLocation();
+		if(!file_exists($cachefile)) {
+        	self::trace('Completing deliverPage() - Returning false', __LINE__);
+		    return false;
+		}
+		$cache_time = $this->configureInstance->getSetting('cache_time');
+        /**
+         * Get the time the file was created
+         *
+         * @author Johnathan Pulos
+         */
+		$cachefile_created = (@file_exists($cachefile)) ? @filemtime($cachefile) : 0; 
+		@clearstatcache(); 
+        /**
+         * If the $cachefile_created is less then the set $cache_time then load the file directly and exit() the code
+         *
+         * @author Johnathan Pulos
+         */
+		if (time() > $cachefile_created + $cache_time) {
+			@readfile($cachefile);  
+			return true;
+		}else {
+        	self::trace('Completing deliverPage() - Returning false', __LINE__);
+		    return false;
+		}
+	}
+	
+	/**
+	 * Start the page caching
+	 *
+	 * @return void
+	 * @access public
+	 * @author Johnathan Pulos
+	 */
+	private function startCaching() {
+	    self::trace('Starting startCaching()', __LINE__);
+	    ob_start();
+	    self::trace('Completing startCaching()', __LINE__);
+	}
+	
+	private function finalizeCaching() {
+	}
+	
+	/**
+	 * Get the file name and location for the cached file
+	 *
+	 * @return string
+	 * @access private
+	 * @author Johnathan Pulos
+	 */
+	private function getCacheFileLocation() {
+	    return APP_PATH . $this->configureInstance->getDirectory('cache') . md5($this->currentPage['page_file']) . '.' . $this->configureInstance->getSetting('cache_ext');
 	}
 	
 	/**
