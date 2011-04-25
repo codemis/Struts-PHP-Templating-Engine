@@ -4,12 +4,17 @@ global:
     description: 'Default Description'
     keywords: 'Default Keywords'
     template: 'example.html'
-    javascript: ''
+    #do not put spaces between file names
+    javascript: 'test.js,test2.js,test3.js' 
     css: 'example.css'
-    compress_js: true # to use compression, all files must be in the root js directory,  the js setting will not take / 
-    compress_css: true # to use compression, all files must be in the root js directory, the js setting will not take / 
-    css_compress_directory: design/css/min #Directory where compression file lives 
-    js_compress_directory: design/js/min #Directory where compression file lives
+    # to use compression, all files must be in the root js directory,  the js setting will not take / 
+    compress_js: true 
+    # to use compression, all files must be in the root js directory, the js setting will not take /
+    compress_css: true 
+    #Directory where compression file lives
+    css_compress_directory: design/css/min/
+    #Directory where compression file lives 
+    js_compress_directory: design/js/min/
     enable_caching: true
     changefreq: 'weekly'
     priority: '1'
@@ -60,7 +65,7 @@ global:
     description: 'Page Description'
     keywords: 'Page keywords'
     template: ''
-    javascript: ''
+    javascript: 'test.js,test2.js'
     css: 'example.css'
     landing_page: false
     cache: true
