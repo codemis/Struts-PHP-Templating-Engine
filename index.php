@@ -56,6 +56,8 @@
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	$newStrut->setSetting('debug_level', 3);
+	$newStrut->setSetting('js_tag_format', "<script src=\"%s\"></script>\r\n");
+	$newStrut->setSetting('css_tag_format', "<link rel=\"stylesheet\" href=\"%s\">\r\n");
 	$strutDirectories = array();
     $strutDirectories['cache'] = 'tmp/';
     $strutDirectories['pages'] = 'design/pages';
@@ -70,6 +72,15 @@
 	$page_url = (isset($_GET['url'])) ? trim($_GET['url']) : 'index.html';
 	$newStrut->processRequest($page_url);
 	$currentPage = $newStrut->getSetting('current_page');
+    /**
+     * Include the database file if it exists
+     *
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    $databaseFile = APP_PATH . str_replace("/", DS, $newStrut->getSetting('database_file'));
+    if(file_exists($databaseFile)){
+	    require_once($databaseFile);
+	 }
 	/**
      * If the page requested has a PHP functionality file, then include and run it.
      *
@@ -93,12 +104,6 @@
 	 }
 	$newStrut->renderRequest();
 	trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
-	
-	
-	
-	$newStrut->jsFormat = "<script src=\"%s\"></script>\r\n";
-	$newStrut->cssFormat ="<link rel=\"stylesheet\" href=\"%s\">\r\n";
-	$newStrut->siteUrl = ($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'http://www.example.com';//Do not add final slash, NOTE:: change to correct url
 	
 	/**
 	 * @var	string	$js_files a string of all the global and page specific javascript files from the settings YAML
@@ -192,53 +197,11 @@
 	}
 
 	/**
-	 * Set the seo vars based on what is provided
-	 *
-	 * @author Technoguru Aka. Johnathan Pulos
-	 */
-	$page_specific_settings['title'] = ((isset($page_specific_settings['title'])) && (!empty($page_specific_settings['title']))) ? $page_specific_settings['title'] : $settings['global']['title'];
-	$page_specific_settings['keywords'] = ((isset($page_specific_settings['keywords'])) && (!empty($page_specific_settings['keywords']))) ? $page_specific_settings['keywords'] : $settings['global']['keywords'];
-	$page_specific_settings['description'] = ((isset($page_specific_settings['description'])) && (!empty($page_specific_settings['description']))) ? $page_specific_settings['description'] : $settings['global']['description'];
-	unset($settings['global']['title']);
-	unset($settings['global']['keywords']);
-	unset($settings['global']['description']);
-	/**
-	 * Send all the rest of the $page_specific_settings to Struts Engine to become layout/page variables.
-	 * Now all variables set in the settings YAML is acessible in the layout using ##variable##
-	 */
-	$newStrut->setLayoutVarFromArray($page_specific_settings, '');
-	$newStrut->setPageVarFromArray($page_specific_settings, '');
-
-	/**
-	 * If the $database_file exists, then include it
-	 * IMPORTANT:: this must remain before including the PHP functionality file for the specific page.
-	 */
-	if(file_exists($database_file)){
-		include($database_file);
-	}
-	
-	/**
-	 * If the page requested has a PHP functionality file, then include and run it.
-	 */
-	if((!empty($page_url)) && (file_exists($pages_code_path . '.php'))){
-		include($pages_code_path . '.php');
-	}
-
-	/**
 	 * If the page requesed has a design layout, then include it.
 	 */
 	if(file_exists($page_path . '.html')){
 		$newStrut->setPageElement($page_path . '.html');
 	}
-		
-	 /**
-	  * Declare any modules to the Struts Templating Engine you need access to on the layout design page 
-	  *
-	  * @author Johnathan Pulos
-	  */
-     if(file_exists($module_code_directory . '/modules.inc.php')){
-	     require_once($module_code_directory . '/modules.inc.php');
-	 }
 	
 	/**
 	 * Tell the Struts Templating Engine the layout file to use.
