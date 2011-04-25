@@ -15,28 +15,29 @@
 	 */
     session_start(); 
     /**
+     * Define global vars for the engine
+     */
+    define("DOMAIN", "http://struts.local");
+    define("DS", '/');
+    define("APP_PATH", dirname(__FILE__) .DS);
+
+    /**
      * Include the Struts Templating Engine, and the spyc class that reads the yaml settings
      *
      * @author Technoguru Aka. Johnathan Pulos
      */
 	include("engine/struts_engine.class.php");
-	include("engine/vendors/spyc/spyc.php");
-	
-	/**
-	 * Set the various variables for use later in the script.
-	 * @var 	string 	$page_content Holds the current page content for the selected page
-	 * @var 	string 	$newStrut templating object
-	 * @var 	array 	$settings an array of settings converted from YAML to a PHP Array thanks to Spyc
-	 * @var 	array 	$page_specific_settings an array of page specific settings converted from YAML to a PHP Array thanks to Spyc
-	 */
-	$page_content = $newStrut = $settings = $page_specific_settings = '';
-    define("APP_PATH", dirname(__FILE__) ."/");
     /**
      * Setup the strutsEngine object
      *
      * @author Technoguru Aka. Johnathan Pulos
      */
 	$newStrut = strutsEngine::init();
+	/**
+	 * SETTINGS
+	 *
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
 	$newStrut->setSetting('default_layout', 'example_test.html');
 	$newStrut->setSetting('settings_file', 'settings/site.yml');
 	$newStrut->setSetting('database_file', 'settings/database.inc.php');
@@ -77,7 +78,7 @@
 	if(!empty($currentPage)) {
 	    $phpFile = APP_PATH . $currentPage['php_file'];
     	if(file_exists($phpFile)){
-    	    include($phpFile);
+    	    include(str_replace('/', DS, $phpFile));
     	}
 	}
 	 /**
@@ -85,10 +86,10 @@
 	  *
 	  * @author Johnathan Pulos
 	  */
-    $moduleDirectory = APP_PATH . $newStrut->getDirectory('modules_code');
-    if(file_exists($moduleDirectory . '/modules.inc.php')){
-        $module_directory = APP_PATH . $newStrut->getDirectory('modules');
-	    require_once($moduleDirectory . '/modules.inc.php');
+    $moduleDirectory = APP_PATH . $newStrut->getDirectory('modules_code', true);
+    if(file_exists($moduleDirectory . DS . 'modules.inc.php')){
+        $module_directory = APP_PATH . $newStrut->getDirectory('modules', true);
+	    require_once($moduleDirectory . DS . 'modules.inc.php');
 	 }
 	$newStrut->renderRequest();
 	trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
@@ -98,98 +99,6 @@
 	$newStrut->jsFormat = "<script src=\"%s\"></script>\r\n";
 	$newStrut->cssFormat ="<link rel=\"stylesheet\" href=\"%s\">\r\n";
 	$newStrut->siteUrl = ($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'http://www.example.com';//Do not add final slash, NOTE:: change to correct url
-	
-	/**
-	 * Set all default variables and directories
-	 * @var string 	$layout_template 		the main layout file for all pages found in the pages directory
-	 * @var int		$cache_time 			length of time to cache files for
-	 * @var string	$cache_directory		directory for the cahce files
-	 * @var	string	$pages_directory		directory for all the page code
-	 * @var	string	$pages_code_directory	directory for all the page php functionality code
-	 * @var	string	$module_directory		directory for all the modules code (nav, side modules, etc.)
-	 * @var	string	$layout_directory		directory for all global layout code
-	 * @var	string	$css_directory			directory for all the css files
-	 * @var	string	$js_directory			directory for all the javascript files
-	 * @var	string	$settings_file			location of the settings YAML
-	 * @var	string	$database_file			location of the database settings file
-	 */
-	$layout_template = 'example.html';// NOTE:: Set to your default layout
-	$cache_time = 1;
-	$cache_ext = 'cache';
-	$cache_directory = 'tmp/';
-	$pages_directory = 'design/pages';
-	$pages_code_directory = 'code/pages';
-	$module_directory = 'design/modules';
-	$module_code_directory = 'code/modules';
-	$layout_directory = 'design/layouts';
-	$css_directory = '/design/css';
-	$newStrut->CSSDir = $css_directory;
-	$js_directory = '/design/js';
-	$newStrut->JSDir = $js_directory;
-	$elements_directory = 'design/elements';
-	$settings_file = 'settings/site.yml';
-	$database_file = 'settings/database.inc.php';	
-	
-	/**
-	 * Spyc load the settings YAML into a PHP array
-	 */
-	$settings = Spyc::YAMLLoad($settings_file);
-	/**
-	 * @var	string	$page_url	the url for the page requested.
-	 */
-	$page_url = (isset($_GET['url'])) ? trim($_GET['url']) : 'index.html';		
-
-	/**
-	 * If they append a index.html,  see if it is valid, if not remove it
-	 * @todo goes into the configuration file
-	 * @author Johnathan Pulos
-	 */
-	if (strpos($page_url, 'index.html') != false) {
-	    if(!array_key_exists($page_url, $settings)) {
-			$page_url = substr($page_url, 0, strrpos($page_url, '/index.html')); 
-		}
-	}
-	
-	/**
-	 * If an extension exists on $page_url then remove it
-	 */
-	if (strpos($page_url, '.') != false) {
-	    $page_url = substr($page_url, 0, strrpos($page_url, '.')); 
-	}
-	
-	/* 404 page */
-	$page_url = (isset($_GET['url']) && !array_key_exists($page_url, $settings)) ? '404' : $page_url;
-
-	/**
-	 * Set path for the page design and code files.
-	 * 
-	 * All file will exist based on the url.  For example,  if the page requested is /meetings/rooms.html then
-	 * -  the page code can be found in $pages_code_directory/meetings/rooms.php
-	 * -  the page design/layout file can be found in $pages_directory/meetings/rooms.html
-	 * Another example.  If the page requested is /meetings.html
-	 * -  the page code can be found in $pages_code_directory/meetings.php
-	 * -  the page design/layout file can be found in $pages_directory/meetings.html
-	 * 
-	 * @var	string $page_path 			the path to the design/layout file for the requested page
-	 * @var	string	$pages_code_path	the path to the php functionality file for the requested page		
-	 */
-	if(!empty($page_url)){
-			$page_path = $pages_directory . '/' . $page_url;
-			$pages_code_path = $pages_code_directory . '/' . $page_url;
-	}else{
-			$page_path = $pages_directory;
-			$pages_code_path = $pages_code_directory;
-	}
-	
-	/**
-	 * Set $page_specific_settings to the specific page settings.  If they do not exist then set them to the global settings.
-	 * @todo 	must verify if the global setting is really the bes approach
-	 */
-	$page_specific_settings = ((!empty($page_url)) && array_key_exists($page_url, $settings)) ? $settings[$page_url] : $settings['global'];	
-	if(empty($page_url) || $page_specific_settings['landing_page'] === true){
-		$page_path = $page_path . '/index';		
-		$pages_code_path = $pages_code_path . '/index';
-	}
 	
 	/**
 	 * @var	string	$js_files a string of all the global and page specific javascript files from the settings YAML

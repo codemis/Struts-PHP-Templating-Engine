@@ -5,7 +5,7 @@
  * @package STRUTS
  * @author Johnathan Pulos
  */
-require_once('vendors/functions/recursive_directory_scan.php');
+require_once(APP_PATH . 'engine' . DS . 'vendors' . DS . 'functions' . DS . 'recursive_directory_scan.php');
 class Caching
 {
     /**
@@ -148,19 +148,19 @@ class Caching
 		 *
 		 * @author Technoguru Aka. Johnathan Pulos
 		 */
-		 $this->recursivelyRemove(APP_PATH . $this->globalSettings['css_compress_directory'], 'css');
+		 $this->recursivelyRemove(APP_PATH . str_replace('/', DS, $this->globalSettings['css_compress_directory']), 'css');
 		/**
 		 * remove Javascript temp files
 		 *
 		 * @author Technoguru Aka. Johnathan Pulos
 		 */
-		$this->recursivelyRemove(APP_PATH . $this->globalSettings['js_compress_directory'], 'js');
+		$this->recursivelyRemove(APP_PATH . str_replace('/', DS, $this->globalSettings['js_compress_directory']), 'js');
 		/**
 		 * Remove all temp files
 		 *
 		 * @author Technoguru Aka. Johnathan Pulos
 		 */
-		$this->recursivelyRemove(APP_PATH . $this->configureInstance->getDirectory('cache'), $this->configureInstance->getSetting('cache_ext'));
+		$this->recursivelyRemove(APP_PATH . $this->configureInstance->getDirectory('cache', true), $this->configureInstance->getSetting('cache_ext'));
 	    self::trace('Completing clearCache()', __LINE__);
 	}
 	
@@ -242,7 +242,7 @@ class Caching
 	 * @author Johnathan Pulos
 	 */
 	private function getCacheFileLocation() {
-	    return APP_PATH . $this->configureInstance->getDirectory('cache') . md5($this->currentPage['page_file']) . '.' . $this->configureInstance->getSetting('cache_ext');
+	    return APP_PATH . $this->configureInstance->getDirectory('cache', true) . md5($this->currentPage['page_file']) . '.' . $this->configureInstance->getSetting('cache_ext');
 	}
 	
 	/**

@@ -135,7 +135,7 @@ class Logging
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
     private function writeToLog($message){
-        $log_file = APP_PATH . '/engine/' . $this->log_file;
+        $log_file = APP_PATH . 'engine' . DS . str_replace('/', DS, $this->log_file);
         $this->cleanUpLog($log_file);
         /**
          * open log file for writing only; place the file pointer at the end of the file 

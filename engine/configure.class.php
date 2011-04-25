@@ -5,6 +5,7 @@
  * @package STRUTS
  * @author Technoguru Aka. Johnathan Pulos
  */
+require_once(APP_PATH . 'engine' . DS . 'vendors' . DS . 'spyc' . DS . 'spyc.php');
 class Configure
 {
     /**
@@ -123,26 +124,27 @@ class Configure
 	 * Get a specific diretory.  If the directory was not set, then return the default directory
 	 *
 	 * @param string $dir directory your looking for
+	 * @param boolean $forRequire Is the directory for a require statement,  if so the directory seprator is replaced with correct seperator
 	 * @return string
 	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	public function getDirectory($dir) {
+	public function getDirectory($dir, $forRequire = false) {
 	    self::trace('Starting getDirectory("'.$dir.'")', __LINE__);
+	    $directory = '';
 	    if(($this->directories) && (array_key_exists($dir, $this->directories) && !empty($this->directories[$dir]))) {
 	        $directory = $this->directories[$dir];
 	        self::trace('<em>getDirectory() Returning</em> - '.$directory, __LINE__);
-	        return $directory;
 	    }else {
 	        if(array_key_exists($dir, $this->defaultSettings['directories']) && !empty($this->defaultSettings['directories'][$dir])) {
 	            $directory = $this->defaultSettings['directories'][$dir];
     	        self::trace('<em>getDirectory() Returning Default</em> - '.$directory, __LINE__);
-    	        return $directory;
 	        }else {
     	        self::trace('<em>getDirectory() Returning Default</em> - empty string (directory not set)', __LINE__);
-    	        return '';
 	        }
 	    }
+	    $directory = ($forRequire === true) ? str_replace('/', DS, $directory) : $directory;
+	    return $directory;
 	}
 
 	/**
@@ -203,7 +205,7 @@ class Configure
 	public function setSPYCSettings() {
 	    self::trace('Starting setSPYCSettings()', __LINE__);
 	    if(empty($this->SPYCSettings)) {
-            $settingsFile = APP_PATH.$this->getSetting('settings_file');
+            $settingsFile = APP_PATH . str_replace('/', DS, $this->getSetting('settings_file'));
         	self::trace('Setting class var SPYCSettings from file: '.$settingsFile, __LINE__);
         	if(file_exists($settingsFile)) {
         	    $this->SPYCSettings = Spyc::YAMLLoad($settingsFile);   

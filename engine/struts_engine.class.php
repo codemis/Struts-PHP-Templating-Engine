@@ -11,11 +11,11 @@
  * @package STRUTS
  * @author Technoguru Aka. Johnathan Pulos  (mailto:johnathan@jpulos.com)
  **/
- require_once('configure.class.php');
- require_once('routing.class.php');
- require_once('logging.class.php');
- require_once('caching.class.php');
- require_once('templating.class.php');
+ require_once(APP_PATH . 'engine' . DS . 'configure.class.php');
+ require_once(APP_PATH . 'engine' . DS . 'routing.class.php');
+ require_once(APP_PATH . 'engine' . DS . 'logging.class.php');
+ require_once(APP_PATH . 'engine' . DS . 'caching.class.php');
+ require_once(APP_PATH . 'engine' . DS . 'templating.class.php');
 class strutsEngine
 {
 	/**
@@ -235,13 +235,14 @@ class strutsEngine
 	 * Get the configuration directory
 	 *
 	 * @param string $dir The directory your looking for
+	 * @param boolean $forRequire is this going to be used for a require statement,  it will replace directory seprator if so
 	 * @return string
 	 * @access public
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	public function getDirectory($dir) {
+	public function getDirectory($dir, $forRequire = false) {
 	    self::trace('getDirectory("'.$dir.'")', __LINE__);
-	    $directory = self::$configureInstance->getDirectory($dir);
+	    $directory = self::$configureInstance->getDirectory($dir, $forRequire);
 	    self::trace('<em>getDirectory() Returning</em> - '.$directory, __LINE__);
 	    return $directory;
 	}
