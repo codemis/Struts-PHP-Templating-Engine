@@ -1,9 +1,6 @@
 <?php
 /**
  * This file will compress all CSS files supplied to a single file that has all returns removed.
- * All files are passed in the url using $_GET['files'] which is comma seperated.  .htaccess makes it a pretty url.
- * This file will also cache the file if $_GET['cache'] is set to true.  This file does not touch the root index.php file,
- * so all settings variables are passed through the url.
  * 
  * @author 		Technoguru Aka. Johnathan Pulos
  * @version 	1
@@ -52,9 +49,7 @@ foreach($files_to_compress as $css){
 		require_once('./'.$css);
 	}
 }
-$directory = $_GET['directory'];
-$directoryArray = explode('/css/', $directory);
-$fp = @fopen($directoryArray[1].'/'.$_GET['filename'], 'w');
+$fp = @fopen($_GET['final_file'], 'w');
 @fwrite($fp, compress(ob_get_contents())); 
 @fclose($fp);
 ob_end_flush();

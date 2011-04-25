@@ -8,7 +8,7 @@ global:
     javascript: 'test.js,test2.js,test3.js' 
     css: 'example.css'
     # to use compression, all files must be in the root js directory,  the js setting will not take / 
-    compress_js: true 
+    compress_js: false 
     # to use compression, all files must be in the root js directory, the js setting will not take /
     compress_css: true 
     #Directory where compression file lives

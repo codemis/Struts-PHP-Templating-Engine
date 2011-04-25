@@ -104,6 +104,7 @@ class Templating
         self::$compressionInstance->loggingInstance = $this->loggingInstance;
 	    $this->addSettingsToTemplateTags();
 	    $this->processJavascript();
+	    $this->processStylesheets();
     	self::trace('Completing processRequest()', __LINE__);
 	}
 	
@@ -149,6 +150,17 @@ class Templating
 	    self::trace('Starting setATemplateTag("'.var_export($arrayOfTags,true).'")', __LINE__);
         $this->mergeWithTemplateTags($arrayOfTags);
         self::trace('Completing setATemplateTag()', __LINE__);
+	}
+	
+	/**
+	 * Sets the templateTags for the logging engine
+	 *
+	 * @return void
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function refreshLoggingTemplateTags() {
+	    $this->loggingInstance->templateTags = $this->templateTags;
 	}
 	
 	/**
@@ -222,7 +234,7 @@ class Templating
 	}
 	
 	/**
-	 * Process the javascript by determining if it needs to be compressed and set the correct javascript tags
+	 * Process the javascript by determining if it needs to be compressed and set the correct javascript tags. Sets the strutJavascript templating tag.
 	 *
 	 * @return void
 	 * @author Technoguru Aka. Johnathan Pulos
@@ -230,7 +242,9 @@ class Templating
 	private function processJavascript() {
 	    self::trace('Starting processJavascript()', __LINE__);
 	    $javascript = '';
+	    $javascriptArray = array();
     	$globalSettings = $this->configureInstance->getSetting('global_settings');
+    	$pageSettings = $this->configureInstance->getSetting('page_settings');
 	    $debug_level = $this->configureInstance->getSetting('debug_level');
         $jsFormat = $this->configureInstance->getSetting('js_tag_format');
         if($globalSettings['compress_js'] === true && $debug_level <= 3) {
@@ -240,49 +254,78 @@ class Templating
              * @author Technoguru Aka. Johnathan Pulos
              */
              $javascriptArray = self::$compressionInstance->compressJavascript();
-             foreach($javascriptArray as $js) {
-                 $javascript .= sprintf($jsFormat, $js);
-             }
+
         }else {
-            $javascript = self::getAllJavascriptTags();
+            $javascriptArray = self::createResourceTags($globalSettings['javascript'], $pageSettings['javascript']);
+        }
+        foreach($javascriptArray as $js) {
+            $javascript .= sprintf($jsFormat, $js);
         }
         $this->templateTags['strutJavascript'] = $javascript;
+        self::refreshLoggingTemplateTags();
         self::trace('Completing processJavascript()', __LINE__);
 	}
 	
 	/**
-	 * loops through all Javascript and creates a string with all the tags
+	 * Process the global and page stylesheets by determining if compression is on, and creating the appropriate stylesheet tags. Sets the strutCSS templating tag.
 	 *
-	 * @return string
+	 * @return void
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	private function getAllJavascriptTags() {
-	    self::trace('Starting getAllJavascriptTags()', __LINE__);
-	    $javascript = '';
-	    $allJs = $pageJs = $globalJs = array();
+	private function processStylesheets() {
+	    self::trace('Starting processStylesheets()', __LINE__);
+        $stylesheet = '';
+	    $stylesheetArray = array();
     	$globalSettings = $this->configureInstance->getSetting('global_settings');
-        $pageSettings = $this->configureInstance->getSetting('page_settings');
-        $jsFormat = $this->configureInstance->getSetting('js_tag_format');
-        $jsDirectory = $this->configureInstance->getDirectory('js', false);
+    	$pageSettings = $this->configureInstance->getSetting('page_settings');
+	    $debug_level = $this->configureInstance->getSetting('debug_level');
+        $cssFormat = $this->configureInstance->getSetting('css_tag_format');
+        if($globalSettings['compress_css'] === true && $debug_level <= 1) {
+            /**
+             * Compress the css files
+             *
+             * @author Technoguru Aka. Johnathan Pulos
+             */
+             $stylesheetArray = self::$compressionInstance->compressCSS();
+
+        }else {
+            $stylesheetArray = self::createResourceTags($globalSettings['css'], $pageSettings['css']);
+        }
+        foreach($stylesheetArray as $css) {
+            $stylesheet .= sprintf($cssFormat, $css);
+        }
+        $this->templateTags['strutCSS'] = $stylesheet;
+        self::refreshLoggingTemplateTags();
+        self::trace('Completing processStylesheets()', __LINE__);
+	}
+	
+	/**
+	 * Takes the global and page specific resources and creates an appropriate array of each resource.
+	 *
+	 * @return array
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function createResourceTags($global, $pageSpecific) {
+	    self::trace('Starting createResourceTags("'.$global.'", "'.$pageSpecific.'")', __LINE__);
+	    $tags = '';
+	    $globalResources = $pageResources = $allResources = array();
         
-        if($globalSettings['javascript'] != '') {
-            $globalJs = explode(',', $globalSettings['javascript']);
+        if($global != '') {
+            $globalResources = explode(',', $global);
         }
-        if($pageSettings['javascript'] != '') {
-            $pageJs = explode(',', $pageSettings['javascript']);   
+        if($pageSpecific != '') {
+            $pageResources = explode(',', $pageSpecific);   
         }
-        if((!empty($globalJs)) && (!empty($pageJs))) {
-            $allJs = array_unique(array_merge($globalJs, $pageJs));
-        }else if(!empty($globalJs)) {
-            $allJs = $globalJs;
-        }else if(!empty($pageJs)) {
-            $allJs = $pageJs;
+        if((!empty($globalResources)) && (!empty($pageResources))) {
+            $allResources = array_unique(array_merge($globalResources, $pageResources));
+        }else if(!empty($globalResources)) {
+            $allResources = $globalResources;
+        }else if(!empty($pageResources)) {
+            $allResources = $pageResources;
         }
-        foreach($allJs as $jsFile) {
-            $javascript .= sprintf($jsFormat, $jsDirectory . '/' . $jsFile);
-        }
-        self::trace('Completing getAllJavascriptTags(): returning '.htmlspecialchars($javascript), __LINE__);
-        return $javascript;
+        self::trace('Completing createResourceTags(): returning ' . var_export($allResources, true), __LINE__);
+        return $allResources;
 	}	
 	
 	/**

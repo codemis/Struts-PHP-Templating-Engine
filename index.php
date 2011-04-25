@@ -58,7 +58,7 @@
 	$newStrut->setSetting('debug_level', 3);
 	$newStrut->setSetting('js_tag_format', "<script src=\"%s\"></script>\r\n");
 	$newStrut->setSetting('css_tag_format', "<link rel=\"stylesheet\" href=\"%s\">\r\n");
-	$newStrut->setSetting('sitewide_compressed_filename', "sitewide.min.js");
+	$newStrut->setSetting('sitewide_compressed_filename', "sitewide.min");
 	$strutDirectories = array();
     $strutDirectories['cache'] = 'tmp/';
     $strutDirectories['pages'] = 'design/pages';
@@ -105,82 +105,6 @@
 	 }
 	$newStrut->renderRequest();
 	trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
-	
-	/**
-	 * @var	string	$js_files a string of all the global and page specific javascript files from the settings YAML
-	 */
-	$js_files = '';
-	
-	/**
-	 * This if block determines what settings have been supplied for the specific page and global javascript files,  and populates the
-	 * $js_files variable with a comma seperated string
-	 */
-	if((array_key_exists('javascript', $page_specific_settings)) && (!empty($page_specific_settings['javascript']))){
-		if((array_key_exists('javascript', $settings['global'])) && (!empty($settings['global']['javascript']))){
-			$sitewide_js_files = explode(',', $settings['global']['javascript']);
-			$page_js_files = explode(',', $page_specific_settings['javascript']);
-		}else{
-			$sitewide_js_files = explode(',', $page_specific_settings['javascript']);
-			$page_js_files = array();
-		}
-		
-		/**
-		 * IMPORTANT:: unset the $page_specific_settings['javascript'] so it will not become a variable on the layout
-		 */
-		unset($page_specific_settings['javascript']);
-	}else{
-		if((array_key_exists('javascript', $settings['global'])) && (!empty($settings['global']['javascript']))){
-			$sitewide_js_files = explode(',', $settings['global']['javascript']);
-			$page_js_files = array();
-		}
-	}
-	
-	/**
-	 * Tell Struts to create the ##strutJavascript## based on the $js_files and whether compression setting is set or not 
-	 */
-	if($settings['global']['compress_js'] === true){
-		$newStrut->setLayoutJSWithCompression($sitewide_js_files, $page_js_files, $settings['global']['js_compress_directory'], $page_url);
-	}else{
-		$js_files = array_merge($sitewide_js_files, $page_js_files);
-		$newStrut->setLayoutJavascriptFromArray($js_files, $js_directory);
-	}
-	
-	/**
-	 * @var	string	$css_files a string of all the global and page specific css files from the settings YAML
-	 */
-	$css_files = '';
-	
-	/**
-	 * This if block determines what settings have been supplied for the specific page and global css files,  and populates the
-	 * $css_files variable with a comma seperated string
-	 */
-	if((array_key_exists('css', $page_specific_settings)) && (!empty($page_specific_settings['css']))){
-		if((array_key_exists('css', $settings['global'])) && (!empty($settings['global']['css']))){
-			$sitewide_css_files = explode(',', $settings['global']['css']);
-			$page_css_files = explode(',', $page_specific_settings['css']);
-		}else{
-			$sitewide_css_files = explode(',', $page_specific_settings['css']);
-			$page_css_files = array();
-		}
-		/**
-		 * IMPORTANT:: unset the $page_specific_settings['css'] so it will not become a variable on the layout
-		 */
-		unset($page_specific_settings['css']);
-	}else{
-		if((array_key_exists('css', $settings['global'])) && (!empty($settings['global']['css']))){
-			$sitewide_css_files = explode(',', $settings['global']['css']);
-			$page_css_files = array();
-		}
-	}
-	/**
-	 * Tell Struts to create the ##strutCSS## based on the $css_files and whether compression setting is set or not 
-	 */
-	if($settings['global']['compress_css'] === true){
-		$newStrut->setLayoutCSSWithCompression($sitewide_css_files, $page_css_files, $settings['global']['css_compress_directory'], $page_url);
-	}else{
-		$css_files = array_merge($sitewide_css_files, $page_css_files);
-		$newStrut->setLayoutCSSFromArray($css_files, $css_directory);
-	}
 	
 	/**
 	 * Check $page_specific_settings['template'], if it is set then $layout_template = $page_specific_settings['template']

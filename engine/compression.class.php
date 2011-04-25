@@ -78,20 +78,50 @@ class Compression
     	$sitewideCompressedFilename = $this->configureInstance->getSetting('sitewide_compressed_filename');
     	$jsDirectory = $this->configureInstance->getDirectory('js', false);
     	if($globalSettings != '') {
-    	    $fileUrl = $jsDirectory . '/' . $sitewideCompressedFilename;
-    	    $filePath = APP_PATH . str_replace('/', DS, $globalSettings['js_compress_directory']) . $sitewideCompressedFilename;
-    	    $finalJsUrl = $this->jsFileExistsOrCreate($fileUrl, $filePath, $globalSettings['javascript']);
+    	    $fileUrl = $jsDirectory . '/' . $sitewideCompressedFilename . '.js';
+    	    $filePath = APP_PATH . str_replace('/', DS, $globalSettings['js_compress_directory']) . $sitewideCompressedFilename . '.js';
+    	    $finalJsUrl = $this->resourceFileExistsOrCreate($fileUrl, $filePath, $globalSettings['javascript'], 'js');
     	    array_push($javascript, $finalJsUrl);
     	}
     	if($pageSettings != '') {
             $pageJsName = $this->getPageCompressionFileName() . "_scripts.min.js";
     	    $fileUrl = $jsDirectory . '/' . $pageJsName;
     	    $filePath = APP_PATH . str_replace('/', DS, $globalSettings['js_compress_directory']) . $pageJsName;
-    	    $finalJsUrl = $this->jsFileExistsOrCreate($fileUrl, $filePath, $pageSettings['javascript']);
+    	    $finalJsUrl = $this->resourceFileExistsOrCreate($fileUrl, $filePath, $pageSettings['javascript'], 'js');
     	    array_push($javascript, $finalJsUrl);
     	}
+        self::trace('Completing compressJavascript() : returning ' . var_export($javascript, true), __LINE__);
         return $javascript;
-    	self::trace('Completing compressJavascript()', __LINE__);
+	}
+	
+	/**
+	 * Compress the site wide and page specific CSS files.  Returns an array with the sitewitde compressed css file url, and the page specific compressed css file url
+	 *
+	 * @return array
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function compressCSS() {
+	    self::trace('Starting compressCSS()', __LINE__);
+	    $css = array();
+    	$globalSettings = $this->configureInstance->getSetting('global_settings');
+    	$pageSettings = $this->configureInstance->getSetting('page_settings');
+    	$sitewideCompressedFilename = $this->configureInstance->getSetting('sitewide_compressed_filename');
+    	$cssDirectory = $this->configureInstance->getDirectory('css', false);
+    	if($globalSettings != '') {
+    	    $fileUrl = $cssDirectory . '/' . $sitewideCompressedFilename . '.css';
+    	    $filePath = APP_PATH . str_replace('/', DS, $globalSettings['css_compress_directory']) . $sitewideCompressedFilename . '.css';
+    	    $finalCSSUrl = $this->resourceFileExistsOrCreate($fileUrl, $filePath, $globalSettings['css'], 'css');
+    	    array_push($css, $finalCSSUrl);
+    	}
+    	if($pageSettings != '') {
+            $pageCSSName = $this->getPageCompressionFileName() . "_styles.min.css";
+    	    $fileUrl = $cssDirectory . '/' . $pageCSSName;
+    	    $filePath = APP_PATH . str_replace('/', DS, $globalSettings['css_compress_directory']) . $pageCSSName;
+    	    $finalCSSUrl = $this->resourceFileExistsOrCreate($fileUrl, $filePath, $pageSettings['css'], 'css');
+    	    array_push($css, $finalCSSUrl);
+    	}
+        self::trace('Completing compressCSS() : returning ' . var_export($css, true), __LINE__);
+        return $css;
 	}
 	
 	/**
@@ -101,12 +131,13 @@ class Compression
 	 * @param string $fileUrl The url to the compressed file location (ie. design/js/test.min.js)
 	 * @param string $filePath The path to the compressed file location from documet root
 	 * @param string $files a string of files to compress
+	 * @param string $type js/css type of resource you are compressing
 	 * @return string
 	 * @access private
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	private function jsFileExistsOrCreate($fileUrl, $filePath, $files) {
-	    $jsDirectory = $this->configureInstance->getDirectory('js', false);
+	private function resourceFileExistsOrCreate($fileUrl, $filePath, $files, $type) {
+	    $resourceDirectory = $this->configureInstance->getDirectory($type, false);
 	    if(file_exists($filePath)) {
 	        /**
 	         * No need to compress, hand over the file with a datestamp
@@ -120,7 +151,7 @@ class Compression
 	         *
 	         * @author Technoguru Aka. Johnathan Pulos
 	         */
-	        $url = DOMAIN . $jsDirectory . '/js.php';
+	        $url = DOMAIN . $resourceDirectory . '/' . $type . '.php';
             $url = $url . '?files='.$files.'&final_file='.$filePath;
 	        $this->requestCompression($url);
 	        $last_modified = date("ymdGis");
