@@ -32,7 +32,6 @@ function compress($buffer) {
  * @var	array $files_to_compress	An array of files to compress into one
  */
 $files_to_compress = explode(',', $_GET['files']);
-
 /**
  * start the page compression/caching engine
  */
@@ -46,9 +45,7 @@ foreach($files_to_compress as $js){
 		require_once('./'.$js);
 	}
 }
-$directory = $_GET['directory'];
-$directoryArray = explode('/js/', $directory);
-$fp = @fopen($directoryArray[1].'/'.$_GET['filename'], 'w');
+$fp = @fopen($_GET['final_file'], 'w');
 @fwrite($fp, compress(ob_get_contents())); 
 @fclose($fp);
 ob_end_flush();

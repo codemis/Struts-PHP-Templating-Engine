@@ -5,6 +5,7 @@
  * @package STRUTS
  * @author Johnathan Pulos
  */
+require_once(APP_PATH . 'engine' . DS . 'compression.class.php');
 class Templating
 {
     /**
@@ -28,6 +29,13 @@ class Templating
 	 * @access public
 	 */
 	public static $loggingInstance;
+	/**
+	 * The singleton instance of the logging class
+	 *
+	 * @var Object
+	 * @access public
+	 */
+	public static $compressionInstance;
 	/**
 	 * An array of template tags set by the developer
 	 *
@@ -65,11 +73,11 @@ class Templating
      */
     public function __clone()
     {
-        trigger_error('Cloning the Routing is not permitted.', E_USER_ERROR);
+        trigger_error('Cloning the Templating is not permitted.', E_USER_ERROR);
     }
 	
 	/**
-	 * setup the Routing class
+	 * setup the Templating class
 	 *
 	 * @return object
 	 * @access public
@@ -79,6 +87,7 @@ class Templating
         if (!self::$templatingInstance) { 
             self::$templatingInstance = new Templating(); 
         }
+        self::$compressionInstance = Compression::init(); 
         return self::$templatingInstance;
 	}
 	
@@ -91,7 +100,10 @@ class Templating
 	 */
 	public function processRequest() {
 	    self::trace('Starting processRequest()', __LINE__);
+        self::$compressionInstance->configureInstance = $this->configureInstance;
+        self::$compressionInstance->loggingInstance = $this->loggingInstance;
 	    $this->addSettingsToTemplateTags();
+	    $this->processJavascript();
     	self::trace('Completing processRequest()', __LINE__);
 	}
 	
@@ -207,6 +219,70 @@ class Templating
 	    
         self::trace('Completing removeUnnecessaryTags()', __LINE__);
         return $searchArray;
+	}
+	
+	/**
+	 * Process the javascript by determining if it needs to be compressed and set the correct javascript tags
+	 *
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function processJavascript() {
+	    self::trace('Starting processJavascript()', __LINE__);
+	    $javascript = '';
+    	$globalSettings = $this->configureInstance->getSetting('global_settings');
+	    $debug_level = $this->configureInstance->getSetting('debug_level');
+        $jsFormat = $this->configureInstance->getSetting('js_tag_format');
+        if($globalSettings['compress_js'] === true && $debug_level <= 3) {
+            /**
+             * Compress the javascript files
+             *
+             * @author Technoguru Aka. Johnathan Pulos
+             */
+             $javascriptArray = self::$compressionInstance->compressJavascript();
+             foreach($javascriptArray as $js) {
+                 $javascript .= sprintf($jsFormat, $js);
+             }
+        }else {
+            $javascript = self::getAllJavascriptTags();
+        }
+        $this->templateTags['strutJavascript'] = $javascript;
+        self::trace('Completing processJavascript()', __LINE__);
+	}
+	
+	/**
+	 * loops through all Javascript and creates a string with all the tags
+	 *
+	 * @return string
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function getAllJavascriptTags() {
+	    self::trace('Starting getAllJavascriptTags()', __LINE__);
+	    $javascript = '';
+	    $allJs = $pageJs = $globalJs = array();
+    	$globalSettings = $this->configureInstance->getSetting('global_settings');
+        $pageSettings = $this->configureInstance->getSetting('page_settings');
+        $jsFormat = $this->configureInstance->getSetting('js_tag_format');
+        $jsDirectory = $this->configureInstance->getDirectory('js', false);
+        
+        if($globalSettings['javascript'] != '') {
+            $globalJs = explode(',', $globalSettings['javascript']);
+        }
+        if($pageSettings['javascript'] != '') {
+            $pageJs = explode(',', $pageSettings['javascript']);   
+        }
+        if((!empty($globalJs)) && (!empty($pageJs))) {
+            $allJs = array_unique(array_merge($globalJs, $pageJs));
+        }else if(!empty($globalJs)) {
+            $allJs = $globalJs;
+        }else if(!empty($pageJs)) {
+            $allJs = $pageJs;
+        }
+        foreach($allJs as $jsFile) {
+            $javascript .= sprintf($jsFormat, $jsDirectory . '/' . $jsFile);
+        }
+        self::trace('Completing getAllJavascriptTags(): returning '.htmlspecialchars($javascript), __LINE__);
+        return $javascript;
 	}	
 	
 	/**

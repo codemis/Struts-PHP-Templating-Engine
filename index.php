@@ -17,7 +17,7 @@
     /**
      * Define global vars for the engine
      */
-    define("DOMAIN", "http://struts.local");
+    define("DOMAIN", "http://struts.local/");
     define("DS", '/');
     define("APP_PATH", dirname(__FILE__) .DS);
 
@@ -47,17 +47,18 @@
 	/**
 	 * Set the level of debugging.
 	 *
-	 * 4 - Display full stack trace when an error occurs, but do not write the trace to the log files (development), Caching disabled 
-	 * 3 - Display full stack trace when an error occurs, and write the trace to the log files (development), Caching disabled
- 	 * 2 - Write stack trace into log file (development), Caching Disabled
-	 * 1 - Write stack trace into log file, Caching Enabled
-	 * 0 - do nothing, Caching Enabled
+	 * 4 - Display full stack trace when an error occurs, but do not write the trace to the log files (development), Caching disabled, Compression disabled 
+	 * 3 - Display full stack trace when an error occurs, and write the trace to the log files (development), Caching disabled, Compression disabled
+ 	 * 2 - Write stack trace into log file (development), Caching Disabled, Compression disabled
+	 * 1 - Write stack trace into log file, Caching Enabled, Compression enabled
+	 * 0 - do nothing, Caching Enabled, Compression enabled
 	 *
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	$newStrut->setSetting('debug_level', 3);
 	$newStrut->setSetting('js_tag_format', "<script src=\"%s\"></script>\r\n");
 	$newStrut->setSetting('css_tag_format', "<link rel=\"stylesheet\" href=\"%s\">\r\n");
+	$newStrut->setSetting('sitewide_compressed_filename', "sitewide.min.js");
 	$strutDirectories = array();
     $strutDirectories['cache'] = 'tmp/';
     $strutDirectories['pages'] = 'design/pages';
@@ -65,8 +66,8 @@
     $strutDirectories['modules'] = 'design/modules';
     $strutDirectories['modules_code'] = 'code/modules';
     $strutDirectories['layouts'] = 'design/layouts';
-    $strutDirectories['css'] = '/design/css';
-    $strutDirectories['js'] = '/design/js';
+    $strutDirectories['css'] = 'design/css';
+    $strutDirectories['js'] = 'design/js';
     $strutDirectories['elements'] = 'design/elements';
 	$newStrut->setSetting('directories', $strutDirectories);
 	$page_url = (isset($_GET['url'])) ? trim($_GET['url']) : 'index.html';
