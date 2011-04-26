@@ -256,7 +256,7 @@ class Templating
              $javascriptArray = self::$compressionInstance->compressJavascript();
 
         }else {
-            $javascriptArray = self::createResourceTags($globalSettings['javascript'], $pageSettings['javascript']);
+            $javascriptArray = self::getResources($globalSettings['javascript'], $pageSettings['javascript']);
         }
         foreach($javascriptArray as $js) {
             $javascript .= sprintf($jsFormat, $js);
@@ -289,7 +289,7 @@ class Templating
              $stylesheetArray = self::$compressionInstance->compressCSS();
 
         }else {
-            $stylesheetArray = self::createResourceTags($globalSettings['css'], $pageSettings['css']);
+            $stylesheetArray = self::getResources($globalSettings['css'], $pageSettings['css']);
         }
         foreach($stylesheetArray as $css) {
             $stylesheet .= sprintf($cssFormat, $css);
@@ -306,8 +306,8 @@ class Templating
 	 * @access private
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	private function createResourceTags($global, $pageSpecific) {
-	    self::trace('Starting createResourceTags("'.$global.'", "'.$pageSpecific.'")', __LINE__);
+	private function getResources($global, $pageSpecific) {
+	    self::trace('Starting getResources("'.$global.'", "'.$pageSpecific.'")', __LINE__);
 	    $tags = '';
 	    $globalResources = $pageResources = $allResources = array();
         
@@ -324,7 +324,7 @@ class Templating
         }else if(!empty($pageResources)) {
             $allResources = $pageResources;
         }
-        self::trace('Completing createResourceTags(): returning ' . var_export($allResources, true), __LINE__);
+        self::trace('Completing getResources(): returning ' . var_export($allResources, true), __LINE__);
         return $allResources;
 	}	
 	
