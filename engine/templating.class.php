@@ -48,7 +48,7 @@ class Templating
      *
      * @var array
      */
-    private $restrictedTags = array('strutCSS', 'strutJavascript', 'strutContent');
+    private $restrictedTags = array('strutCSS', 'strutJavascript', 'strutContent', 'strutFinalLayout');
     /**
      * An array of tags that are unneccessar and need to be removed
      *
@@ -117,8 +117,10 @@ class Templating
 	 */
 	public function completeRequest() {
 	    self::trace('Starting completeRequest()', __LINE__);
-	    
-    	self::trace('Completing completeRequest()', __LINE__);
+	    $this->setStrutContent();
+	    $this->setStrutFinalLayout();
+	    print $this->templateTags['strutFinalLayout'];
+	    exit;
 	}
 	/**
 	 * Sets a template tag for the view
@@ -247,7 +249,7 @@ class Templating
     	$pageSettings = $this->configureInstance->getSetting('page_settings');
 	    $debug_level = $this->configureInstance->getSetting('debug_level');
         $jsFormat = $this->configureInstance->getSetting('js_tag_format');
-        if($globalSettings['compress_js'] === true && $debug_level <= 3) {
+        if($globalSettings['compress_js'] === true && $debug_level <= 1) {
             /**
              * Compress the javascript files
              *
@@ -256,7 +258,8 @@ class Templating
              $javascriptArray = self::$compressionInstance->compressJavascript();
 
         }else {
-            $javascriptArray = self::getResources($globalSettings['javascript'], $pageSettings['javascript']);
+        	$jsDirectory = $this->configureInstance->getDirectory('js', false);
+            $javascriptArray = self::getResources($globalSettings['javascript'], $pageSettings['javascript'], $jsDirectory);
         }
         foreach($javascriptArray as $js) {
             $javascript .= sprintf($jsFormat, $js);
@@ -289,7 +292,8 @@ class Templating
              $stylesheetArray = self::$compressionInstance->compressCSS();
 
         }else {
-            $stylesheetArray = self::getResources($globalSettings['css'], $pageSettings['css']);
+            $cssDirectory = $this->configureInstance->getDirectory('css', false);
+            $stylesheetArray = self::getResources($globalSettings['css'], $pageSettings['css'], $cssDirectory);
         }
         foreach($stylesheetArray as $css) {
             $stylesheet .= sprintf($cssFormat, $css);
@@ -306,7 +310,7 @@ class Templating
 	 * @access private
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	private function getResources($global, $pageSpecific) {
+	private function getResources($global, $pageSpecific, $directory) {
 	    self::trace('Starting getResources("'.$global.'", "'.$pageSpecific.'")', __LINE__);
 	    $tags = '';
 	    $globalResources = $pageResources = $allResources = array();
@@ -324,9 +328,81 @@ class Templating
         }else if(!empty($pageResources)) {
             $allResources = $pageResources;
         }
+        /**
+         * Append the directory
+         *
+         */
+        foreach($allResources as $key => $val) {
+            $allResources[$key] = '/' . $directory . '/' . $val;
+        }
         self::trace('Completing getResources(): returning ' . var_export($allResources, true), __LINE__);
         return $allResources;
 	}	
+	
+	/**
+	 * Set the strutContent for the layout file by parsing the page and setting all the variables.
+	 *
+	 * @return void
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function setStrutContent() {
+	    $currentPage = $this->configureInstance->getSetting('current_page');
+	    $templateFile = APP_PATH . str_replace('/', DS, $currentPage['page_file']);
+	    $pageFile = $this->prepareFile($templateFile);
+        $strutContent = $this->processFileContent($pageFile);
+        $this->templateTags['strutContent'] = $strutContent;
+        self::refreshLoggingTemplateTags();
+	}
+	
+	/**
+	 * sets the final content by processing the layout file, and setting it to the template tag strutFinalLayout
+	 *
+	 * @return void
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function setStrutFinalLayout() {
+	    $layoutFile = $this->configureInstance->getLayout();
+	    $layoutPath = $this->configureInstance->getDirectory('layouts');
+	    $layoutTemplateFile = APP_PATH . str_replace('/', DS, $layoutPath) . DS . $layoutFile;
+	    $layoutFile = $this->prepareFile($layoutTemplateFile);
+        $strutFinalLayout = $this->processFileContent($layoutFile);
+        $this->templateTags['strutFinalLayout'] = $strutFinalLayout;
+        self::refreshLoggingTemplateTags();
+	}
+	
+	/**
+	 * Opens the file, and creates a string of its contents
+	 * 
+	 * @param string $file the file with path to process 
+	 * @return string
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function prepareFile($file) {
+	    if(file_exists($file)) {
+	        return implode(file($file),'');   
+	    }else {
+	        trigger_error('Unable to find file to prepareFile: ' . $file, E_USER_ERROR);
+	    }
+	}
+	
+	/**
+	 * Processes the file content by replacing any ##var## with its corresponding templateTag variable.
+	 *
+	 * @param string $fileContent the content of the file
+	 * @return string
+	 * @access private
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function processFileContent($fileContent) {
+	    $processedContent = $fileContent;
+	    foreach($this->templateTags as $key => $val) {
+    		$processedContent = str_replace("##$key##", $val, $processedContent);
+    	}
+    	return $processedContent;
+	}
 	
 	/**
 	 * convienence method for logging traces

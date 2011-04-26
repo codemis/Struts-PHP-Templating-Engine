@@ -42,7 +42,7 @@ global:
     title: 'Page Title'
     description: 'Page Description'
     keywords: 'Page keywords'
-    template: ''
+    template: 'second_layout.html'
     javascript: ''
     css: ''
     landing_page: true

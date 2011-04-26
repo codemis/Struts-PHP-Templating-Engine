@@ -146,6 +146,24 @@ class Configure
 	    $directory = ($forRequire === true) ? str_replace('/', DS, $directory) : $directory;
 	    return $directory;
 	}
+	
+	/**
+	 * Determine which layout file should be used.  If one is set in site.yml, then use it, otherwise use the default_layout.
+	 *
+	 * @return string
+	 * @access public
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function getLayout() {
+	    $defaultLayout = $this->getSetting('default_layout');
+        if(isset($this->SPYCSettings[$this->current_page['page']]) && !empty($this->SPYCSettings[$this->current_page['page']]['template'])) {
+            return $this->SPYCSettings[$this->current_page['page']]['template'];
+        }else if(!empty($defaultLayout)) {
+            return $defaultLayout;
+        }else {
+           trigger_error('default_layout and template setting for the page are both missing.', E_USER_ERROR); 
+        }
+	}
 
 	/**
 	 * Get/Set the global specific settings from the settings.yml

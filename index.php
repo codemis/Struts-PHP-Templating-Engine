@@ -38,7 +38,7 @@
 	 *
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
-	$newStrut->setSetting('default_layout', 'example_test.html');
+	$newStrut->setSetting('default_layout', 'example.html');
 	$newStrut->setSetting('settings_file', 'settings/site.yml');
 	$newStrut->setSetting('database_file', 'settings/database.inc.php');
 	$newStrut->setSetting('cache_time', 600); //Seconds
@@ -104,39 +104,4 @@
 	    require_once($moduleDirectory . DS . 'modules.inc.php');
 	 }
 	$newStrut->renderRequest();
-	trigger_error('Cloning the STRUT is not permitted.', E_USER_ERROR);
-	
-	/**
-	 * Check $page_specific_settings['template'], if it is set then $layout_template = $page_specific_settings['template']
-	 * else it remains the default layout set above
-	 */
-	if((array_key_exists('template', $page_specific_settings)) && (!empty($page_specific_settings['template']))){
-		$layout_template = $page_specific_settings['template'];
-		
-		/**
-		 * IMPORTANT:: unset the $page_specific_settings['template'] so it will not become a variable on the layout
-		 */
-		unset($page_specific_settings['template']);
-	}else{
-		$layout_template = $settings['global']['template'];
-	}
-
-	/**
-	 * If the page requesed has a design layout, then include it.
-	 */
-	if(file_exists($page_path . '.html')){
-		$newStrut->setPageElement($page_path . '.html');
-	}
-	
-	/**
-	 * Tell the Struts Templating Engine the layout file to use.
-	 */
-	if(file_exists($layout_directory . '/' . $layout_template)){
-	  $newStrut->setLayoutElement($layout_directory . '/' . $layout_template);
-	}
-	
-	/**
-	 * Tell Struts Templating Engine to render the layout.
-	 */
-	print $newStrut->renderLayout();
 ?>
