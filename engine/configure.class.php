@@ -23,9 +23,10 @@ class Configure
                                                                 'pages' => 'design/pages',
                                                                 'pages_code' => 'code/pages',
                                                                 'modules' => 'design/modules',
+                                                                'modules_code' => 'code/modules',
                                                                 'layouts' => 'design/layouts',
-                                                                'css' => '/design/css',
-                                                                'js' => '/design/js',
+                                                                'css' => 'design/css',
+                                                                'js' => 'design/js',
                                                                 'elements' => 'design/elements'                  
                                         )
     );
