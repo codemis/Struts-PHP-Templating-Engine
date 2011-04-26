@@ -84,6 +84,12 @@
 	 */
 	$newStrut->setSetting('retain_logs', 600);
 	/**
+	 * should the page be utf8 encoded
+	 *
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	$newStrut->setSetting('utf8_encode', false);
+	/**
 	 * Set the level of debugging.
 	 *
 	 * 4 - Display full stack trace when an error occurs, but do not write the trace to the log files (development), Caching disabled, Compression disabled 

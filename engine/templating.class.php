@@ -365,10 +365,17 @@ class Templating
 	private function setStrutFinalLayout() {
 	    $layoutFile = $this->configureInstance->getLayout();
 	    $layoutPath = $this->configureInstance->getDirectory('layouts');
+	    $utf8Encode = $this->configureInstance->getSetting('utf8_encode');
+	    
 	    $layoutTemplateFile = APP_PATH . str_replace('/', DS, $layoutPath) . DS . $layoutFile;
 	    $layoutFile = $this->prepareFile($layoutTemplateFile);
         $strutFinalLayout = $this->processFileContent($layoutFile);
-        $this->templateTags['strutFinalLayout'] = $strutFinalLayout;
+        if($utf8Encode === true) {
+            echo "here";
+    	    $this->templateTags['strutFinalLayout'] = utf8_encode($strutFinalLayout);
+    	}else {
+    	    $this->templateTags['strutFinalLayout'] = $strutFinalLayout;   
+    	}
         self::refreshLoggingTemplateTags();
 	}
 	
@@ -401,7 +408,7 @@ class Templating
 	    foreach($this->templateTags as $key => $val) {
     		$processedContent = str_replace("##$key##", $val, $processedContent);
     	}
-    	return $processedContent;
+    	return $processedContent;  
 	}
 	
 	/**
