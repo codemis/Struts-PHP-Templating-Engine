@@ -651,11 +651,5 @@ class strutsEngine
         return '';
 	}
 	
-	public function arrayMethod() {
-	    $newArray = array();
-	    $newArray['test'] = true;
-	    return $newArray;
-	}
-	
 }// END class 
 ?>

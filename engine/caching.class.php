@@ -271,10 +271,11 @@ class Caching
 	 *
 	 * @param string $message message to add to stack 
 	 * @return void
-	 * @author Technoguru Aka. Johnathan Pulos
+	 * @author Technoguru Aka. Johnathan Pulos 
 	 */
 	private function trace($message, $line = '') {
 	    $this->loggingInstance->logTrace('<strong>Caching (line# '.$line.')</strong>: '.$message);
 	}
+
 }
 ?>

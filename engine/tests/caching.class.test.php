@@ -17,15 +17,15 @@ define("DS", '/');
 * Defines the root directory for this application, force it to the directory root
 */
 define("APP_PATH", "../../");
-require_once('../struts_engine.class.php');
-class strutsEngineTest extends PHPUnit_Framework_TestCase
+require_once('../caching.class.php');
+class CachingTest extends PHPUnit_Framework_TestCase
 {
     /**
 	 * The singleton instance of the class
 	 *
 	 * @var Object
 	 */
-	private static $strutsInstance;
+	private static $cachingInstance;
 	
 	/**
 	 * Setup the testing case
@@ -35,7 +35,7 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase
 	 * @author Johnathan Pulos
 	 */
     public function setUp() {
-        self::$strutsInstance = strutsEngine::init();
+        self::$cachingInstance = Caching::init();
     }
     
     /**
@@ -46,8 +46,7 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase
      * @author Johnathan Pulos
      */
     public function tearDown() {
-        self::$strutsInstance = '';
+        self::$cachingInstance = '';
     }
-
 }
 ?>
