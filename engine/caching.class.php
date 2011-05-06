@@ -108,6 +108,7 @@ class Caching
             trigger_error('The cache has been cleared.', E_USER_ERROR);
         }
         if($this->globalSettings['enable_caching'] === true && $debug_level <= 1) {
+            echo "here";
             $pageSettings = $this->configureInstance->getSetting('page_settings');
             if($pageSettings['cache'] === true) {
                 self::trace('Caching is on!', __LINE__);

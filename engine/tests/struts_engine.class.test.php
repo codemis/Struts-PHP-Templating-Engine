@@ -19,7 +19,7 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * The instance of the strutsEngine Reflection Class
 	 *
-	 * @author Johnathan Pulos
+	 * @var Object
 	 */
 	private static $strutsReflectionInstance;
 	/**
@@ -349,14 +349,6 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase {
      * @author Johnathan Pulos
      */
     public function testShouldTraceLogDetails() {
-        // $line = '12334';
-        // $message = 'Processing farm rules...';
-        // $expectedTrace = '<strong>strutsEngine (line# '.$line.')</strong>: '.$message;
-        // self::$loggingMock->shouldReceive('logTrace')->with(m::any())->times(1);
-        // 
-        // $method = self::$strutsReflectionInstance->getMethod("trace");
-        // $method->setAccessible(true);
-        // $method->invoke(self::$strutsInstance, $message, $line);
     }
     
     /**
