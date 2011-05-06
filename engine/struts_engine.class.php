@@ -191,7 +191,7 @@ class strutsEngine
 	 * @author Technoguru Aka. Johnathan Pulos
 	 */
 	public function debug() {
-	    self::$loggingInstance->errorHandler();
+	    self::$loggingInstance->errorHandler('', 'strutsEngine::debug called.', '', __LINE__);
 	}
 	
 	/**
@@ -378,9 +378,6 @@ class strutsEngine
 	 * 
 	 * @var	string	$js_files			an array of javascript files with extension
 	 * @var	string	$directory			optional directory for files
-	 * @var	Boolean	$compress			should we set the url to a compression file ($js_compress_dir/$cache_js/$files_to_compress (commas seperated))
-	 * @var	String	$js_compress_dir	location of the javascript compression file
-	 * @var	Boolean	$cache_js			Do you want the Javascript files cached	
 	 *
 	 * @return Boolean
 	 * 
@@ -431,10 +428,7 @@ class strutsEngine
 	 * Deprecated
 	 * 
 	 * @var	string	$css_files			an array of CSS files with extension
-	 * @var	string	$directory			optional directory for files
-	 * @var	Boolean	$compress			should we set the url to a compression file ($css_compress_dir/$cache_css/$files_to_compress (commas seperated))
-	 * @var	String	$css_compress_dir	location of the CSS compression file
-	 * @var	Boolean	$cache_css			Do you want the CSS files cached	
+	 * @var	string	$directory			optional directory for files	
 	 *
 	 * @return Boolean
  	 * @deprecated
