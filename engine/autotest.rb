@@ -10,7 +10,7 @@ watch('(.*).class.php')  { |m| run_all_tests }
 def run_single_test(file) 
   system("clear") 
   send_response("Running Test: #{File.basename(file)}")
-  run("cd tests && phpunit #{File.basename(file)}", File.basename(file))
+  run("cd tests && phpunit --bootstrap bootstrap.inc.php #{File.basename(file)}", File.basename(file))
 end 
 
 def run_all_tests
@@ -18,7 +18,7 @@ def run_all_tests
   send_response("Running All Tests")
   Dir.glob('tests/*.class.test.php') do |test_file|
     send_response("Running Test: #{File.basename(test_file)}")
-    run("cd tests && phpunit #{File.basename(test_file)}", File.basename(test_file))
+    run("cd tests && phpunit --bootstrap bootstrap.inc.php #{File.basename(test_file)}", File.basename(test_file))
   end 
 end
 

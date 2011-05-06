@@ -1,25 +1,15 @@
 <?php
 /**
- * Testing for struts_engine.class.php
+ * Testing for struts_engine.class.php.  Uses Mockery for Mock Objects
  *
+ * @link https://github.com/padraic/mockery
+ * 
  * @package STRUTS
  * @author Technoguru Aka. Johnathan Pulos
  */
-/**
-* Define the DOMAIN for the current site
-*/
-define("DOMAIN", "http://struts.local/");
-/**
-* Define the directory seperator type for the current file system
-*/
-define("DS", '/');
-/**
-* Defines the root directory for this application, force it to the directory root
-*/
-define("APP_PATH", "../../");
 require_once('../struts_engine.class.php');
-class strutsEngineTest extends PHPUnit_Framework_TestCase
-{
+use \Mockery as m;
+class strutsEngineTest extends PHPUnit_Framework_TestCase {
     /**
 	 * The singleton instance of the class
 	 *
@@ -32,6 +22,36 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase
 	 * @author Johnathan Pulos
 	 */
 	private static $strutsReflectionInstance;
+	/**
+	 * The Mock instance of the Configure class
+	 *
+	 * @var Object
+	 */
+	private static $configureMock;
+	/**
+	 * The Mock instance of the Configure class
+	 *
+	 * @var Object
+	 */
+	private static $routingMock;
+	/**
+	 * The Mock instance of the Routing class
+	 *
+	 * @var Object
+	 */
+	private static $cachingMock;
+	/**
+	 * The Mock instance of the Logging class
+	 *
+	 * @var Object
+	 */
+	private static $loggingMock;
+	/**
+	 * The Mock instance of the Templating class
+	 *
+	 * @var Object
+	 */
+	private static $templatingMock;
 	
 	/**
 	 * Setup the testing case
@@ -41,7 +61,26 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase
 	 * @author Johnathan Pulos
 	 */
     public function setUp() {
+        
         self::$strutsInstance = strutsEngine::init();
+        /**
+         * Setup instances of ecah object as a mock object
+         *
+         * @author Johnathan Pulos
+         */
+         self::$configureMock = m::mock('Configure');
+         self::$routingMock = m::mock('Routing');
+         self::$cachingMock = m::mock('Caching');
+         self::$templatingMock = m::mock('Templating');
+         self::$loggingMock = m::mock('Logging');
+         self::$loggingMock->shouldReceive('logTrace');
+         self::$strutsInstance = '';
+         strutsEngine::$configureInstance = self::$configureMock;
+         strutsEngine::$routingInstance = self::$routingMock;
+         strutsEngine::$cachingInstance = self::$cachingMock;
+         strutsEngine::$templatingInstance = self::$templatingMock;
+         strutsEngine::$loggingInstance = self::$loggingMock;
+         self::$strutsInstance = strutsEngine::init();
         self::$strutsReflectionInstance = new ReflectionClass('strutsEngine');
     }
     
@@ -55,6 +94,12 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase
     public function tearDown() {
         self::$strutsInstance = '';
         self::$strutsReflectionInstance = '';
+        self::$configureMock = '';
+        self::$routingMock = '';
+        self::$cachingMock = '';
+        self::$templatingMock = '';
+        self::$loggingMock = '';
+        m::close();
     }
 
     /**
@@ -166,11 +211,11 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase
      * @author Johnathan Pulos
      */
     public function testSetSettingShouldSetASetting() {
+        $testKey = 'MyVar';
+        $testVal = 'MyVal';
+        self::$configureMock->shouldReceive('setSetting')->times(1)->with($testKey, $testVal);
         $method = self::$strutsReflectionInstance->getMethod("setSetting");
-        $method->invoke(self::$strutsInstance, 'MyVar', 'MyVal');
-        
-        $getMethod = self::$strutsReflectionInstance->getMethod("getSetting");
-        $this->assertEquals('MyVal', $getMethod->invoke(self::$strutsInstance, 'MyVar'));
+        $method->invoke(self::$strutsInstance, $testKey, $testVal);
     }
     
     /**
@@ -181,26 +226,36 @@ class strutsEngineTest extends PHPUnit_Framework_TestCase
      * @author Johnathan Pulos
      */
     public function testShouldGetADirectory() {
-        $expectedDirectory = array('test_directory' => 'test/mess/duck/', 'another_test_directory' => 'test/horse_and_cow/');
+        $testKey = 'directories';
+        $testVal = array('test_directory' => 'test/mess/duck/');
+        self::$configureMock->shouldReceive('setSetting')->times(1)->with($testKey, $testVal)->ordered();
         $method = self::$strutsReflectionInstance->getMethod("setSetting");
-        $method->invoke(self::$strutsInstance, 'directories', $expectedDirectory);
+        $method->invoke(self::$strutsInstance, $testKey, $testVal);
         
+        self::$configureMock->shouldReceive('getDirectory')->times(1)->with('test_directory', false)->andReturn($testVal['test_directory'])->ordered();
         $getMethod = self::$strutsReflectionInstance->getMethod("getDirectory");
         $this->assertEquals('test/mess/duck/', $getMethod->invoke(self::$strutsInstance, 'test_directory'));
-        $this->assertEquals('test/horse_and_cow/', $getMethod->invoke(self::$strutsInstance, 'another_test_directory'));
     }
     
     public function testSingleton() {
-        self::$strutsInstance = '';
-        $configureMock = $this->getMock('Configure', array('setSetting', 'trace'), array(), '', false);
-        strutsEngine::$configureInstance = $configureMock;
-        self::$strutsInstance = strutsEngine::init();
-        
-        $configureMock->expects($this->any())->method('setSetting');
+        $testUrl = 'example';
+        $expectedCurrentPage = array(   'request' => 'example', 
+                                        'page' => 'example', 
+                                        'file_name' => 'example', 
+                                        'page_file' => 'design/pages/example.html', 
+                                        'php_file' => 'code/pages/example.php'
+                                    );
+                                    
+        self::$configureMock->shouldReceive('setSPYCSettings')->times(1)->ordered();
+        self::$routingMock->shouldReceive('getCurrentPage')->times(1)->with($testUrl)->andReturn($expectedCurrentPage)->ordered();
+        self::$configureMock->shouldReceive('setSetting')->times(1)->with('current_page', $expectedCurrentPage)->ordered();
+        self::$configureMock->shouldReceive('initGlobalSettings')->times(1)->ordered();
+        self::$configureMock->shouldReceive('initPageSettings')->times(1)->ordered();
+        self::$cachingMock->shouldReceive('processRequest')->times(1)->ordered();
+        self::$templatingMock->shouldReceive('processRequest')->times(1)->ordered();
         $method = self::$strutsReflectionInstance->getMethod("processRequest");
-        $method->invoke(self::$strutsInstance, '/test/test');
+        $method->invoke(self::$strutsInstance, $testUrl);
     }
-    
-    
+
 }
 ?>

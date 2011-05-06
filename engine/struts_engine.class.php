@@ -23,7 +23,7 @@ class strutsEngine
 	 *
 	 * @var Object
 	 */
-	private static $strutsInstance;
+	public static $strutsInstance;
 	/**
 	 * The singleton instance of the configure class
 	 *
@@ -35,25 +35,25 @@ class strutsEngine
 	 *
 	 * @var Object
 	 */
-	private static $routingInstance;
+	public static $routingInstance;
 	/**
 	 * The singleton instance of the logging class
 	 *
 	 * @var Object
 	 */
-	private static $loggingInstance;
+	public static $loggingInstance;
 	/**
 	 * The singleton instance of the caching class
 	 *
 	 * @var Object
 	 */
-	private static $cachingInstance;
+	public static $cachingInstance;
 	/**
 	 * The singleton instance of the templating class
 	 *
 	 * @var Object
 	 */
-	private static $templatingInstance;
+	public static $templatingInstance;
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use strutsEngine::scaffold()
