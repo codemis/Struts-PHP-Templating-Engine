@@ -29,7 +29,7 @@ class strutsEngine
 	 *
 	 * @var Object
 	 */
-	private static $configureInstance;
+	public static $configureInstance;
 	/**
 	 * The singleton instance of the routing class
 	 *
@@ -84,7 +84,7 @@ class strutsEngine
 	public function init() {
 	    if (!self::$loggingInstance) { 
             self::$loggingInstance = Logging::init();
-             
+            
             self::trace('Completed initializing Logging Class', __LINE__);
         }
 	    if (!self::$strutsInstance) {

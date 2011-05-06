@@ -178,7 +178,7 @@
      *
      * @author Technoguru Aka. Johnathan Pulos
      */
-	//$newStrut->setSetting('directories', $strutDirectories);
+	$newStrut->setSetting('directories', $strutDirectories);
 	/**
 	 * The requested page is sent in the url using a GET param url.  Pass it to the processRequest method.
 	 *
