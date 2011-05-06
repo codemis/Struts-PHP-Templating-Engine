@@ -51,6 +51,102 @@ class Configure
 	 * @access private
 	 */
 	public static $loggingInstance;
+	/**
+	 * Set defaults for various required vars
+	 *
+	 * @author Johnathan Pulos
+	 */
+	 /**
+	  * The default layout
+	  *
+	  * @var string
+	  */
+	 private $default_layout = 'main.html';
+	 /**
+	  * Location of the settings file
+	  *
+	  * @var string
+	  */
+	 private $settings_file = 'settings/site.yml';
+	 /**
+	  * location of the database file
+	  *
+	  * @var string
+	  */
+	 private $database_file = 'settings/database.inc.php';
+	 /**
+	  * The seconds to hold the cache file for
+	  *
+	  * @var integer
+	  */
+	 private $cache_time = 600;
+	 /**
+	  * extension for the cache file
+	  *
+	  * @var string
+	  */
+	 private $cache_ext = 'cache';
+	 /**
+	  * Seconds to retain log files
+	  *
+	  * @var integer
+	  */
+	 private $retain_logs = 600;
+	 /**
+	  * Whether to us utf8 encoding
+	  *
+	  * @var boolean
+	  */
+	 private $utf8_encode = false;
+ 	/**
+ 	 * Set the level of debugging.
+ 	 *
+ 	 * 4 - Display full stack trace when an error occurs, but do not write the trace to the log files (development), Caching disabled, Compression disabled 
+ 	 * 3 - Display full stack trace when an error occurs, and write the trace to the log files (development), Caching disabled, Compression disabled
+  	 * 2 - Write stack trace into log file (development), Caching Disabled, Compression disabled
+ 	 * 1 - Write stack trace into log file, Caching Enabled, Compression enabled
+ 	 * 0 - do nothing, Caching Enabled, Compression enabled
+ 	 *
+ 	 * @var integer
+ 	 */
+	 private $debug_level = 0;
+	 /**
+	  * HTML code for script tags
+	  *
+	  * @var string
+	  */
+	 private $js_tag_format = "<script src=\"%s\"></script>\r\n";
+	 /**
+	  * HTML code for css tags
+	  *
+	  * @var string
+	  */
+	 private $css_tag_format = "<link rel=\"stylesheet\" href=\"%s\">\r\n";
+	 /**
+	  * file name for the sitewide files
+	  *
+	  * @var string
+	  */
+	 private $sitewide_compressed_filename = 'sitewide';
+	 /**
+	  * Holds information about the current page
+	  *
+	  * @var array
+	  */
+	 private $current_page = array();
+	 /**
+	  * Holds information about the global settings
+	  *
+	  * @var array
+	  */
+	 private $global_settings = array();
+	 /**
+	  * Holds information about the page settings
+	  *
+	  * @var array
+	  */
+	 private $page_settings = array();
+	 
 	
 	/**
 	 * Only allow one instance of this class.  To setup this class use Configure::init()
