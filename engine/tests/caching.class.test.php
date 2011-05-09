@@ -377,5 +377,40 @@ class CachingTest extends PHPUnit_Framework_TestCase
         $result = $method->invoke(self::$cachingInstance);
         $this->assertEquals($result, $expectedFileReturned);
     }
+    
+    /**
+     * test recurivelyRemove should remove all files in a given directory with a set extension
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldRemoveAllTestFilesInRecursivelyRemove() {
+        /**
+         * Create some test files in the test_cache directory
+         *
+         * @author Technoguru Aka. Johnathan Pulos
+         */
+         $expectedCacheDir = 'test_cache';
+         /**
+          * Add temp files in each cache directory to test against
+          *
+          * @author Technoguru Aka. Johnathan Pulos
+          */
+         $cacheFileNames = array('cache1.cache', 'cache2.cache', 'cache3.cache', 'tmp' . DS . 'cache4.cache');
+         foreach($cacheFileNames as $file) {
+             $cacheFile = $expectedCacheDir . DS . $file;
+             $currentFile = fopen($cacheFile, 'w') or die("can't open file");
+             fclose($currentFile);
+             $this->assertTrue(file_exists($cacheFile));
+         }
+         
+         $method = self::$cachingReflectionInstance->getMethod("recursivelyRemove");
+         $method->setAccessible(true);
+         
+         $method->invoke(self::$cachingInstance, APP_PATH . 'engine' . DS . 'tests' . DS . $expectedCacheDir, 'cache');
+         foreach($cacheFileNames as $file) {
+             $this->assertFalse(file_exists($cacheFile));
+         }
+    }
 }
 ?>

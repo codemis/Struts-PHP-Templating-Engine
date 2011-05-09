@@ -257,13 +257,28 @@ class Caching
 	private function recursivelyRemove($directory, $extension) {
 	    self::trace('Starting recursivelyRemove("'.$directory.'","'.$extension.'")', __LINE__);
 	    $directoryResults = scan_directory_recursively($directory);
-		foreach($directoryResults as $tempFile) {
+	    $this->removeAllFilesWithExtension($directoryResults, $extension);
+		self::trace('Completing recursivelyRemove()', __LINE__);
+	}
+	
+	/**
+	 * A recursive method of trolling directory and removing all files with a specific extension
+	 *
+	 * @param array $directoryListing Array of files for the directory
+	 * @param string $extension extesion of the file to delete
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	private function removeAllFilesWithExtension($directoryListing, $extension) {
+	    foreach($directoryListing as $tempFile) {
 			if($tempFile['extension'] == $extension){
 			    self::trace('<strong>Deleting: '.$tempFile['path'].'</strong>', __LINE__);
 				unlink($tempFile['path']);
 			}
+			if(array_key_exists('content', $tempFile)) {
+			    $this->removeAllFilesWithExtension($tempFile['content'], $extension);
+			}
 		}
-		self::trace('Completing recursivelyRemove()', __LINE__);
 	}
 	
 	/**
