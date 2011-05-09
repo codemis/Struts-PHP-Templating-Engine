@@ -1,6 +1,6 @@
 <?php
 /**
- * Testing for struts_engine.class.php
+ * Testing for caching.class.php
  *
  * @package STRUTS
  * @author Technoguru Aka. Johnathan Pulos
@@ -9,8 +9,7 @@ require_once('../caching.class.php');
 require_once('../logging.class.php');
 require_once('../configure.class.php');
 use \Mockery as m;
-class CachingTest extends PHPUnit_Framework_TestCase
-{
+class CachingTest extends PHPUnit_Framework_TestCase {
     /**
 	 * The singleton instance of the class
 	 *
