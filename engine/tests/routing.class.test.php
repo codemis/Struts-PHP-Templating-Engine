@@ -29,7 +29,7 @@ class RoutingTest extends PHPUnit_Framework_TestCase {
 	 */
 	private static $configureMock;
 	/**
-	 * The Mock instance of the Configure class
+	 * The Mock instance of the Logging class
 	 *
 	 * @var Object
 	 */
