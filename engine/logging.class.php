@@ -42,6 +42,12 @@ class Logging
 	 * @access private
 	 */
 	private $log_file = 'logs/stack_trace.log';
+	/**
+	 * If testing this is set true
+	 *
+	 * @var string
+	 */
+	private $testing = false;
 
 	
 	/**
@@ -71,11 +77,14 @@ class Logging
 	 * @access public
 	 * @author Johnathan Pulos
 	 */
-	public function init() { 
+	public function init($testing = false) { 
         if (!self::$loggingInstance) { 
             self::$loggingInstance = new Logging(); 
         }
-        set_error_handler(array(self::$loggingInstance, 'errorHandler'));
+        self::$loggingInstance->testing = $testing;
+        if(self::$loggingInstance->testing === false) {
+            set_error_handler(array(self::$loggingInstance, 'errorHandler'));   
+        }
         return self::$loggingInstance;
 	} 
 	
@@ -154,7 +163,7 @@ class Logging
     }
     
     /**
-     * Checks if the log file has been retain tool long based on retain_logs setting, and truncates it
+     * Checks if the log file has been retain too long based on retain_logs setting, and truncates it
      *
      * @param string $logFile 
      * @return void
