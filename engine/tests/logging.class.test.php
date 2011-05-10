@@ -1,6 +1,6 @@
 <?php
 /**
- * Testing for caching.class.php
+ * Testing for logging.class.php
  *
  * @package STRUTS
  * @author Technoguru Aka. Johnathan Pulos
