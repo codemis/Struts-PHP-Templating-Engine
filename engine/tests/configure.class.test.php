@@ -323,5 +323,103 @@ class ConfigureTest extends PHPUnit_Framework_TestCase {
         $this->fail('An expected exception has not been raised.');
     }
     
+    /**
+     * If index is in the current page,  it should be removed before setting the page_settings var
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldRemoveIndexBeforeSettingOnInitPageSettings() {
+        $expectedPageTitle = 'Test Page Data';
+        $current_page = $this->expectedCurrentPage;
+        $current_page['page'] = "test/index";
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'current_page', $current_page);
+        $this->setupTestYamlFileSettings();
+        
+        $page_settings_prop = self::$configureReflectionInstance->getProperty("page_settings");
+        $page_settings_prop->setAccessible(true);
+        $page_settings = $page_settings_prop->getValue(self::$configureInstance);
+        $this->assertEquals($expectedPageTitle, $page_settings['title']);
+        
+        $this->tearDownTestYamlFileSettings();
+    }
+    
+    /**
+     * initPageSettings should set the page_settings var
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldSetPageSettingsOnInitPageSettings() {
+        $page_settings_prop = self::$configureReflectionInstance->getProperty("page_settings");
+        $page_settings_prop->setAccessible(true);
+        $page_settings = $page_settings_prop->getValue(self::$configureInstance);
+        $this->assertTrue(empty($page_settings));
+        
+        $expectedPageTitle = 'Test Page Data';
+        $current_page = $this->expectedCurrentPage;
+        $current_page['page'] = "test";
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'current_page', $current_page);
+        $method->invoke(self::$configureInstance, 'settings_file', 'engine/tests/test_settings/settings.yml');
+        
+        $method = self::$configureReflectionInstance->getMethod("setSPYCSettings");
+        $result = $method->invoke(self::$configureInstance);
+        
+        $method = self::$configureReflectionInstance->getMethod("initPageSettings");
+        $method->invoke(self::$configureInstance);
+        
+        $page_settings_prop = self::$configureReflectionInstance->getProperty("page_settings");
+        $page_settings_prop->setAccessible(true);
+        $page_settings = $page_settings_prop->getValue(self::$configureInstance);
+        $this->assertFalse(empty($page_settings));
+        
+        $this->tearDownTestYamlFileSettings();
+    }
+    
+    /**
+     * setSPYCSettings() should get the settings YML and parse the data
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldSetSpycSettingsOnSetSPYCSettings() {
+        $spyc_settings_prop = self::$configureReflectionInstance->getProperty("SPYCSettings");
+        $spyc_settings_prop->setAccessible(true);
+        $spyc_settings = $spyc_settings_prop->getValue(self::$configureInstance);
+        $this->assertTrue(empty($spyc_settings));
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'settings_file', 'engine/tests/test_settings/settings.yml');
+        
+        $method = self::$configureReflectionInstance->getMethod("setSPYCSettings");
+        $method->invoke(self::$configureInstance);
+        
+        $spyc_settings_prop = self::$configureReflectionInstance->getProperty("SPYCSettings");
+        $spyc_settings_prop->setAccessible(true);
+        $spyc_settings = $spyc_settings_prop->getValue(self::$configureInstance);
+        $this->assertFalse(empty($spyc_settings));
+        
+        $this->tearDownTestYamlFileSettings();
+    }
+    
+    /**
+     * If it is not able to find the settings file setSPYCSettings() should throw an error
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldThrowErrorIfSettingsFileDoesNotExistOnSetSPYCSettings() {
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'settings_file', 'engine/tests/settings.yml');
+        try {
+            $method = self::$configureReflectionInstance->getMethod("setSPYCSettings");
+            $method->invoke(self::$configureInstance);
+        }catch (PHPUnit_Framework_Error $expected) {
+            return;
+        }
+        $this->fail('An expected exception has not been raised.');
+    }
+
 }
 ?>
