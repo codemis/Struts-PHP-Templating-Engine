@@ -253,13 +253,17 @@ class Configure
 	 */
 	public function getLayout() {
 	    $defaultLayout = $this->getSetting('default_layout');
-        if(isset($this->SPYCSettings[$this->current_page['page']]) && !empty($this->SPYCSettings[$this->current_page['page']]['template'])) {
-            return $this->SPYCSettings[$this->current_page['page']]['template'];
-        }else if(!empty($defaultLayout)) {
-            return $defaultLayout;
-        }else {
-           trigger_error('default_layout and template setting for the page are both missing.', E_USER_ERROR); 
+	    $currentLayout = "";
+	    if(!empty($defaultLayout)) {
+            $currentLayout = $defaultLayout;
         }
+        if(isset($this->global_settings) && !empty($this->global_settings['template'])) {
+            $currentLayout = $this->global_settings['template'];
+        }
+        if(isset($this->page_settings) && !empty($this->page_settings['template'])) {
+            $currentLayout = $this->page_settings['template'];
+        }
+        return $currentLayout;
 	}
 
 	/**
@@ -301,8 +305,8 @@ class Configure
     	 *
     	 * @author Johnathan Pulos
     	 */
-    	if(array_key_exists($this->current_page['page'], $this->SPYCSettings)){
-    	    $page_settings = $this->SPYCSettings[$this->current_page['page']];
+    	if(array_key_exists($current_page, $this->SPYCSettings)){
+    	    $page_settings = $this->SPYCSettings[$current_page];
     	}else {
     	    $page_settings = $this->SPYCSettings['global'];
     	}

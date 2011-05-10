@@ -27,7 +27,17 @@ class ConfigureTest extends PHPUnit_Framework_TestCase {
 	 * @var Object
 	 */
 	private static $loggingMock;
-	
+	/**
+     * Factory for current page settings
+     *
+     * @var array
+     */
+	private $expectedCurrentPage = array(   'request' => 'example', 
+                                            'page' => 'example', 
+                                            'file_name' => 'example', 
+                                            'page_file' => 'design/pages/example.html', 
+                                            'php_file' => 'code/pages/example.php'
+                                );
 	/**
 	 * Setup the testing case
 	 *
@@ -51,6 +61,41 @@ class ConfigureTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
+     * Sets up the testing yaml file for page and global settings
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function setupTestYamlFileSettings() {
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'settings_file', 'engine/tests/test_settings/settings.yml');
+        $method = self::$configureReflectionInstance->getMethod("setSPYCSettings");
+        $result = $method->invoke(self::$configureInstance);
+        
+        $method = self::$configureReflectionInstance->getMethod("initGlobalSettings");
+        $method->invoke(self::$configureInstance);
+        $method = self::$configureReflectionInstance->getMethod("initPageSettings");
+        $method->invoke(self::$configureInstance);
+    }
+    
+    /**
+     * Tear down the testing yaml file for page and global settings
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function tearDownTestYamlFileSettings() {
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'settings_file', 'settings/site.yml');
+        $spyc_settings = self::$configureReflectionInstance->getProperty("SPYCSettings");
+        $spyc_settings->setValue(self::$configureInstance, array());
+        
+        $method->invoke(self::$configureInstance, 'global_settings', array());
+        $method->invoke(self::$configureInstance, 'page_settings', array());
+        $method->invoke(self::$configureInstance, 'current_page', array());
+    }
+    
+    /**
      * Complete the testing case
      *
      * @return void
@@ -59,7 +104,7 @@ class ConfigureTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         self::$configureInstance = '';
-        self::$configureReflectionInstance = '';;
+        self::$configureReflectionInstance = '';
         self::$loggingMock = '';
         m::close();
     }
@@ -140,6 +185,28 @@ class ConfigureTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($expectedValue, $result);
     }
     
+    /**
+     * getDirectory() should hand user over a default directory if they did not set one
+     * NOTE: This test must remain above testShouldReturnAUserSetDirectoryOnGetDirectory() test
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldReturnADefaultDirectoryOnGetDirectory() {
+        $expectedKey = "directories";
+        $expectedValue = 'tmp/';
+       
+        $method = self::$configureReflectionInstance->getMethod("getDirectory");
+        $result = $method->invoke(self::$configureInstance, 'cache', false);
+        $this->assertEquals($result, $expectedValue);
+    }
+    
+    /**
+     * getDirectory() should hand user over their specified directory if they set one
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
     public function testShouldReturnAUserSetDirectoryOnGetDirectory() {
         $expectedKey = "directories";
         $expectedValue = array('cache' => 'my_new_cache_dir/');
@@ -150,5 +217,111 @@ class ConfigureTest extends PHPUnit_Framework_TestCase {
         $result = $method->invoke(self::$configureInstance, 'cache', false);
         $this->assertEquals($expectedValue['cache'], $result);
     }
+
+    /**
+     * getLayout() should return a default layout if the YML settings are not set
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldReturnDefaultLayoutOnGetLayout() {
+        $expectedLayout = "main.html";
+        
+        $method = self::$configureReflectionInstance->getMethod("getLayout");
+        $result = $method->invoke(self::$configureInstance);
+        $this->assertEquals($expectedLayout, $result);
+    }
+    
+    /**
+     * If a page template is set,  getLayout() should bypass the global layout and hand over the page specific template
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldReturnPageLayoutIfIssetOnGetLayout() {
+        $expectedLayout = "my_new_test_layout.html";
+        $current_page = $this->expectedCurrentPage;
+        $current_page['page'] = "test_with_layout";
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'current_page', $current_page);
+        $this->setupTestYamlFileSettings();
+         
+        $method = self::$configureReflectionInstance->getMethod("getLayout");
+        $result = $method->invoke(self::$configureInstance);
+        $this->assertEquals($expectedLayout, $result);
+        
+        $this->tearDownTestYamlFileSettings();
+    }
+    
+    /**
+     * If the page does not have a specific template, then it should use the global setting unsless not specified
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldReturnGlobalLayoutIfIssetOnGetLayout() {
+        $expectedLayout = "test_layout.html";
+        $current_page = $this->expectedCurrentPage;
+        $current_page['page'] = "test";
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'current_page', $current_page);
+        $this->setupTestYamlFileSettings();
+         
+        $method = self::$configureReflectionInstance->getMethod("getLayout");
+        $result = $method->invoke(self::$configureInstance);
+        $this->assertEquals($expectedLayout, $result);
+        
+        $this->tearDownTestYamlFileSettings();
+    }
+    
+    /**
+     * initGlobalSettings should setup the class var global_settings
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldSetGlobalSettingsOnInitGlobalSettings() {
+        $global_settings_prop = self::$configureReflectionInstance->getProperty("global_settings");
+        $global_settings_prop->setAccessible(true);
+        $global_settings = $global_settings_prop->getValue(self::$configureInstance);
+        $this->assertTrue(empty($global_settings));
+        
+        $method = self::$configureReflectionInstance->getMethod("setSetting");
+        $method->invoke(self::$configureInstance, 'settings_file', 'engine/tests/test_settings/settings.yml');
+        $method = self::$configureReflectionInstance->getMethod("setSPYCSettings");
+        $result = $method->invoke(self::$configureInstance);
+        
+        $method = self::$configureReflectionInstance->getMethod("initGlobalSettings");
+        $method->invoke(self::$configureInstance);
+        
+        $global_settings_prop = self::$configureReflectionInstance->getProperty("global_settings");
+        $global_settings_prop->setAccessible(true);
+        $global_settings = $global_settings_prop->getValue(self::$configureInstance);
+        $this->assertFalse(empty($global_settings));
+        
+        $this->tearDownTestYamlFileSettings();
+    }
+    
+    /**
+     * If current_page is not set initPageSettings() should throw an error
+     *
+     * @return void
+     * @author Technoguru Aka. Johnathan Pulos
+     */
+    public function testShouldThrowErrorIfCurrentPageNotSetOnInitPageSettings() {
+        $current_page_prop = self::$configureReflectionInstance->getProperty("current_page");
+        $current_page_prop->setAccessible(true);
+        $current_page = $current_page_prop->getValue(self::$configureInstance);
+        $this->assertTrue(empty($current_page));
+        
+        try {
+            $method = self::$configureReflectionInstance->getMethod("initPageSettings");
+            $method->invoke(self::$configureInstance);
+        }catch (PHPUnit_Framework_Error $expected) {
+            return;
+        }
+        $this->fail('An expected exception has not been raised.');
+    }
+    
 }
 ?>

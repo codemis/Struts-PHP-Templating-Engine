@@ -167,7 +167,7 @@ class Routing
 	 */
 	private function getFileName() {
 	    if ($this->SPYCSettings[$this->currentPage['page']]['landing_page'] === true){
-    		return 'index';
+    		return $this->currentPage['page'] . '/index';
     	}else {
     	    return $this->currentPage['page'];
     	}
