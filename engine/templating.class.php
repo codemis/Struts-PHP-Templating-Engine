@@ -50,7 +50,7 @@ class Templating
      */
     private $restrictedTags = array('strutCSS', 'strutJavascript', 'strutContent', 'strutFinalLayout');
     /**
-     * An array of tags that are unneccessar and need to be removed
+     * An array of tags that are unneccessary and need to be removed
      *
      * @author Johnathan Pulos
      */
@@ -92,6 +92,17 @@ class Templating
 	}
 	
 	/**
+	 * Initialize all objects for this class
+	 *
+	 * @return void
+	 * @author Technoguru Aka. Johnathan Pulos
+	 */
+	public function initSTRUTObjects() {
+	    self::$compressionInstance->configureInstance = $this->configureInstance;
+        self::$compressionInstance->loggingInstance = $this->loggingInstance;
+	}
+	
+	/**
 	 * Complete anything necessary to process the curent requested page
 	 *
 	 * @return void
@@ -100,8 +111,7 @@ class Templating
 	 */
 	public function processRequest() {
 	    self::trace('Starting processRequest()', __LINE__);
-        self::$compressionInstance->configureInstance = $this->configureInstance;
-        self::$compressionInstance->loggingInstance = $this->loggingInstance;
+        $this->initSTRUTObjects();
 	    $this->addSettingsToTemplateTags();
 	    $this->processJavascript();
 	    $this->processStylesheets();
@@ -256,7 +266,6 @@ class Templating
              * @author Technoguru Aka. Johnathan Pulos
              */
              $javascriptArray = self::$compressionInstance->compressJavascript();
-
         }else {
         	$jsDirectory = $this->configureInstance->getDirectory('js', false);
             $javascriptArray = self::getResources($globalSettings['javascript'], $pageSettings['javascript'], $jsDirectory);
@@ -306,6 +315,9 @@ class Templating
 	/**
 	 * Takes the global and page specific resources and creates an appropriate array of each resource.
 	 *
+	 * @param string $global string of global resources
+	 * @param string $pageSpecific string of page specific resources
+	 * @param string $directory directory for each resource
 	 * @return array
 	 * @access private
 	 * @author Technoguru Aka. Johnathan Pulos
@@ -371,7 +383,6 @@ class Templating
 	    $layoutFile = $this->prepareFile($layoutTemplateFile);
         $strutFinalLayout = $this->processFileContent($layoutFile);
         if($utf8Encode === true) {
-            echo "here";
     	    $this->templateTags['strutFinalLayout'] = utf8_encode($strutFinalLayout);
     	}else {
     	    $this->templateTags['strutFinalLayout'] = $strutFinalLayout;   
