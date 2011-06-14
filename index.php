@@ -202,6 +202,14 @@
 	 * @var	string	$js_files a string of all the global and page specific javascript files from the settings YAML
 	 */
 	$js_files = '';
+	/**
+	 * @var	array	$sitewide_js_files an array of all the js files
+	 */
+	$sitewide_js_files = array();
+	/**
+	 * @var	array	$page_js_files a n array of all the js files for the specific page
+	 */
+	$page_js_files = array();
 	
 	/**
 	 * This if block determines what settings have been supplied for the specific page and global javascript files,  and populates the
@@ -213,7 +221,6 @@
 			$page_js_files = explode(',', $page_specific_settings['javascript']);
 		}else{
 			$sitewide_js_files = explode(',', $page_specific_settings['javascript']);
-			$page_js_files = array();
 		}
 		
 		/**
@@ -223,7 +230,6 @@
 	}else{
 		if((array_key_exists('javascript', $settings['global'])) && (!empty($settings['global']['javascript']))){
 			$sitewide_js_files = explode(',', $settings['global']['javascript']);
-			$page_js_files = array();
 		}
 	}
 	
